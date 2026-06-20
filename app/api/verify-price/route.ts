@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
 
 TAREA 1 — Precio: Extrae el precio de venta visible (el precio más grande o prominente, normalmente en rojo).
 
+TAREA 3 — Nombre del producto: Extrae el NOMBRE/TÍTULO exacto del producto tal como aparece en la captura (el título descriptivo del artículo, normalmente arriba o junto al precio). Cópialo textual, sin inventar. Si no hay un título claro visible, devuelve "".
+
 TAREA 2 — Peso estimado: Identifica qué tipo de producto es y estima su peso de envío en kg usando esta tabla de referencia:
 - Lencería, ropa interior, bikini, calcetines: 0.15 kg
 - Camiseta, blusa, top, falda: 0.25 kg
@@ -57,9 +59,9 @@ TAREA 2 — Peso estimado: Identifica qué tipo de producto es y estima su peso 
 Si el producto no encaja exactamente, da tu mejor estimación razonable según su tamaño y material.
 
 Responde ÚNICAMENTE con un objeto JSON con este formato exacto:
-{"precio": 12.99, "encontrado": true, "peso_kg": 0.4, "categoria": "Vestido"}
+{"precio": 12.99, "encontrado": true, "peso_kg": 0.4, "categoria": "Vestido", "nombre": "Vestido floral de manga corta"}
 Si no hay ningún precio visible:
-{"precio": 0, "encontrado": false, "peso_kg": 0, "categoria": ""}
+{"precio": 0, "encontrado": false, "peso_kg": 0, "categoria": "", "nombre": ""}
 No incluyas nada más, solo el JSON.`,
             },
           ],
@@ -73,6 +75,7 @@ No incluyas nada más, solo el JSON.`,
     let encontrado = false;
     let peso_kg = 0;
     let categoria = '';
+    let nombre = '';
 
     try {
       const match = raw.match(/\{[\s\S]*\}/);
@@ -82,6 +85,7 @@ No incluyas nada más, solo el JSON.`,
         encontrado = parsed.encontrado ?? false;
         peso_kg = Number(parsed.peso_kg) || 0;
         categoria = parsed.categoria ?? '';
+        nombre = (parsed.nombre ?? '').toString().trim();
       }
     } catch {
       return NextResponse.json({ error: 'No se pudo analizar la imagen' }, { status: 422 });
@@ -100,7 +104,7 @@ No incluyas nada más, solo el JSON.`,
     if (!peso_kg || peso_kg < 0.1) peso_kg = 0.3;
     if (peso_kg > 30) peso_kg = 30;
 
-    return NextResponse.json({ ok: true, encontrado: true, precio, peso_kg, categoria });
+    return NextResponse.json({ ok: true, encontrado: true, precio, peso_kg, categoria, nombre });
   } catch (e) {
     console.error('[verify-price]', e);
     return NextResponse.json({ error: 'Error al analizar la imagen' }, { status: 500 });

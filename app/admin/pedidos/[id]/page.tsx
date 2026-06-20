@@ -16,6 +16,7 @@ import {
   Package,
   Save,
   CheckCircle,
+  Truck,
 } from 'lucide-react';
 
 const ESTADOS_OPCIONES: EstadoPedido[] = [
@@ -35,6 +36,8 @@ export default function DetallePedidoPage() {
   const [guardado, setGuardado] = useState(false);
   const [estadoSel, setEstadoSel] = useState<EstadoPedido>('pendiente_pago');
   const [notaAdmin, setNotaAdmin] = useState('');
+  const [trackingNumero, setTrackingNumero] = useState('');
+  const [trackingUrl, setTrackingUrl] = useState('');
 
   const cargar = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -48,6 +51,8 @@ export default function DetallePedidoPage() {
       setPedido(data.pedido);
       setEstadoSel(data.pedido.estado);
       setNotaAdmin(data.pedido.nota_admin ?? '');
+      setTrackingNumero(data.pedido.tracking_numero ?? '');
+      setTrackingUrl(data.pedido.tracking_url ?? '');
     }
     setCargando(false);
   }, [id, router]);
@@ -67,7 +72,12 @@ export default function DetallePedidoPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ estado: estadoSel, nota_admin: notaAdmin }),
+        body: JSON.stringify({
+          estado: estadoSel,
+          nota_admin: notaAdmin,
+          tracking_numero: trackingNumero.trim(),
+          tracking_url: trackingUrl.trim(),
+        }),
       });
       const data = await res.json();
       if (data.ok) {
@@ -279,6 +289,44 @@ export default function DetallePedidoPage() {
                 ))}
               </select>
             </div>
+
+            {/* Seguimiento ZOOM — solo al marcar "En tránsito" */}
+            {estadoSel === 'en_transito' && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Truck className="w-4 h-4" />
+                  <span className="text-xs font-semibold">Guía de seguimiento ZOOM</span>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    Número de guía
+                  </label>
+                  <input
+                    type="text"
+                    value={trackingNumero}
+                    onChange={(e) => setTrackingNumero(e.target.value)}
+                    placeholder="Ej. 1234567890"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    URL de seguimiento
+                  </label>
+                  <input
+                    type="url"
+                    value={trackingUrl}
+                    onChange={(e) => setTrackingUrl(e.target.value)}
+                    placeholder="https://www.grupozoom.com/tracking/..."
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A]"
+                  />
+                </div>
+                <p className="text-xs text-blue-600/80 leading-relaxed">
+                  El cliente verá esta guía al consultar su pedido mientras esté en tránsito.
+                </p>
+              </div>
+            )}
+
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-500 mb-1">
                 Nota interna (solo visible para admin)

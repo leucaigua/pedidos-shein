@@ -97,6 +97,10 @@ CREATE INDEX IF NOT EXISTS idx_cupones_codigo ON cupones(codigo);
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS codigo_cupon TEXT;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS descuento NUMERIC DEFAULT 0;
 
+-- Seguimiento de envío ZOOM (visible para el cliente cuando el pedido está en tránsito)
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tracking_numero TEXT;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tracking_url TEXT;
+
 -- Valores por defecto de configuración
 INSERT INTO config (clave, valor) VALUES
   ('comision_pct', '10'),

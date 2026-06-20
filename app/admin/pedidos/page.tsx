@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Eye,
   Filter,
+  FileUp,
 } from 'lucide-react';
 
 const ESTADOS: { value: string; label: string }[] = [
@@ -67,13 +68,22 @@ export default function AdminPedidosPage() {
             {pedidos.length} pedido{pedidos.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button
-          onClick={cargarPedidos}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1A1A1A] transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Actualizar
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={cargarPedidos}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1A1A1A] transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Actualizar
+          </button>
+          <Link
+            href="/admin/pedidos/cotizacion"
+            className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#3D3D3D] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+          >
+            <FileUp className="w-4 h-4" />
+            Subir cotización
+          </Link>
+        </div>
       </div>
 
       {/* Filtros */}

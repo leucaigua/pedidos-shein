@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Search, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star } from 'lucide-react';
+import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star } from 'lucide-react';
 
 const COMO_FUNCIONA = [
-  { icon: Search, paso: '1', titulo: 'Pega el link del producto', desc: 'Copia la URL de cualquier producto de SHEIN y pégala en nuestro formulario.' },
-  { icon: Calculator, paso: '2', titulo: 'Sube tu captura', desc: 'Tomamos el precio directamente de tu pantalla. Sin errores, sin re-tipeos.' },
-  { icon: CheckCircle, paso: '3', titulo: 'Confirmamos y compramos', desc: 'Realizas el pago y nosotros compramos el producto por ti. Lo recibes en Venezuela.' },
+  { icon: Camera, paso: '1', titulo: 'Sube tus capturas', desc: 'Toma una captura de cada producto en SHEIN con el precio visible y súbelas — una o varias a la vez. Cada captura es un artículo de tu pedido.' },
+  { icon: Calculator, paso: '2', titulo: 'Calculamos tu precio', desc: 'Extraemos el precio y el peso de cada captura automáticamente y sumamos el envío. Especifica la talla (o modelo), y el color.' },
+  { icon: CheckCircle, paso: '3', titulo: 'Confirmamos y compramos', desc: 'Agregas todo al carrito, realizas el pago y nosotros compramos los productos por ti. Los recibes en Venezuela.' },
 ];
 
 const METODOS_PAGO = [
@@ -149,7 +149,7 @@ export default function LandingPage() {
       <section className="py-16 px-4 bg-[#1A1A1A]">
         <div className="max-w-3xl mx-auto text-center text-white">
           <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">¿Listo para hacer tu pedido?</h2>
-          <p className="text-lg text-gray-400 mb-8">Pega el link, sube la captura y calcula tu precio en segundos.</p>
+          <p className="text-lg text-gray-400 mb-8">Sube tus capturas y calcula el precio final de tu pedido en segundos.</p>
           <Link href="/pedir" className="inline-block bg-white text-[#1A1A1A] font-bold px-10 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors">
             Hacer mi pedido ahora
           </Link>

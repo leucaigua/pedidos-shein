@@ -9,6 +9,7 @@ interface CartState {
 
 type CartAction =
   | { type: 'ADD'; item: ItemCarrito }
+  | { type: 'ADD_MANY'; items: ItemCarrito[] }
   | { type: 'REMOVE'; id: string }
   | { type: 'UPDATE_QTY'; id: string; cantidad: number }
   | { type: 'CLEAR' };
@@ -17,6 +18,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD':
       return { items: [...state.items, action.item] };
+    case 'ADD_MANY':
+      return { items: [...state.items, ...action.items] };
     case 'REMOVE':
       return { items: state.items.filter((i) => i.id !== action.id) };
     case 'UPDATE_QTY':
@@ -35,6 +38,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 interface CartContextValue {
   items: ItemCarrito[];
   addItem: (item: Omit<ItemCarrito, 'id'>) => void;
+  addMany: (items: Omit<ItemCarrito, 'id'>[]) => void;
   removeItem: (id: string) => void;
   updateQty: (id: string, cantidad: number) => void;
   clearCart: () => void;
@@ -67,6 +71,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
+  function addMany(items: Omit<ItemCarrito, 'id'>[]) {
+    dispatch({
+      type: 'ADD_MANY',
+      items: items.map((i) => ({ ...i, id: crypto.randomUUID() })),
+    });
+  }
+
   function removeItem(id: string) {
     dispatch({ type: 'REMOVE', id });
   }
@@ -83,7 +94,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items: state.items, addItem, removeItem, updateQty, clearCart, totalItems }}
+      value={{ items: state.items, addItem, addMany, removeItem, updateQty, clearCart, totalItems }}
     >
       {children}
     </CartContext.Provider>

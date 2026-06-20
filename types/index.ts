@@ -59,6 +59,8 @@ export interface Pedido {
   items: ItemCarrito[];
   user_id?: string | null;
   cliente_email?: string | null;
+  tracking_numero?: string | null;
+  tracking_url?: string | null;
 }
 
 export interface Perfil {

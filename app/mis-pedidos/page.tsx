@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import { estadoLabel, estadoEmoji, estadoColor } from '@/lib/utils';
 import { formatUSD } from '@/lib/calculations';
 import type { EstadoPedido } from '@/types';
-import { Search, Loader2, Package, AlertCircle, CheckCircle } from 'lucide-react';
+import { Search, Loader2, Package, AlertCircle, CheckCircle, Truck, ExternalLink } from 'lucide-react';
 
 const PASOS: { estado: EstadoPedido; label: string }[] = [
   { estado: 'pendiente_pago', label: 'Pendiente de pago' },
@@ -25,6 +25,8 @@ interface PedidoResumen {
   cliente_nombre: string;
   total: number;
   items: { nombre: string }[];
+  tracking_numero?: string | null;
+  tracking_url?: string | null;
 }
 
 function MisPedidosContent() {
@@ -178,6 +180,32 @@ function MisPedidosContent() {
                 })}
               </div>
             </div>
+
+            {/* Seguimiento ZOOM — visible cuando hay guía y el pedido está en tránsito */}
+            {pedido.estado === 'en_transito' && (pedido.tracking_numero || pedido.tracking_url) && (
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                <div className="flex items-center gap-2 text-blue-700 mb-2">
+                  <Truck className="w-4 h-4" />
+                  <span className="text-sm font-semibold">Tu pedido va en camino con ZOOM</span>
+                </div>
+                {pedido.tracking_numero && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    Número de guía:{' '}
+                    <span className="font-mono font-semibold text-[#1A1A1A]">{pedido.tracking_numero}</span>
+                  </p>
+                )}
+                {pedido.tracking_url && (
+                  <a
+                    href={pedido.tracking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-[#3D3D3D] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Rastrear mi envío <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
 
             {/* Info del pedido */}
             <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
