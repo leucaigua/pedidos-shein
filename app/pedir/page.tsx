@@ -8,13 +8,13 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
 import {
-  calcularDesgloseCarrito, formatUSD, formatBsD,
+  calcularDesgloseCarrito, calcularAbono, calcularRestante, formatUSD, formatBsD,
 } from '@/lib/calculations';
 import type { ItemCarrito } from '@/types';
 import {
   Loader2, ShoppingCart, AlertCircle, CheckCircle,
   XCircle, Info, Package, Camera, RefreshCw, Link2,
-  ChevronDown, HelpCircle,
+  ChevronDown, HelpCircle, Sparkles,
 } from 'lucide-react';
 
 type Paso = 'formulario' | 'confirmado';
@@ -485,6 +485,27 @@ function PedirContent() {
                     </div>
                   )}
                 </div>
+
+                {/* Desglose de pago 60/40 */}
+                <div className="mt-4 bg-white/5 border border-white/10 rounded-xl p-4">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[#FFD700]">
+                      Aparta con solo el 60%
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <span className="text-sm text-gray-300">Pagas hoy (60%)</span>
+                    <span className="text-2xl font-display font-bold text-white">
+                      {formatUSD(calcularAbono(desglose.total))}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-gray-400 mt-1.5 pt-1.5 border-t border-white/10">
+                    <span>Restante al retirar (40%)</span>
+                    <span>{formatUSD(calcularRestante(desglose.total))}</span>
+                  </div>
+                </div>
+
                 <div className="mt-4 pt-4 border-t border-white/10 flex items-start gap-2">
                   <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <p className="text-xs text-gray-300 leading-relaxed">
@@ -524,12 +545,21 @@ function PedirContent() {
 
             {/* Estado vacío */}
             {items.length === 0 && (
-              <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-xl">
-                <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Cada captura se convierte en un artículo. Estimamos el <strong>precio y el peso</strong> de
-                  cada producto automáticamente. Especifica la talla (o modelo), y el color.
-                </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5 p-3.5 bg-[#1A1A1A] text-white rounded-xl">
+                  <Sparkles className="w-5 h-5 text-[#FFD700] flex-shrink-0" />
+                  <p className="text-sm leading-relaxed">
+                    <strong className="text-[#FFD700]">Aparta tu pedido con solo el 60%.</strong>{' '}
+                    Pagas el 60% para procesarlo y el 40% restante al retirarlo.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-xl">
+                  <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Cada captura se convierte en un artículo. Estimamos el <strong>precio y el peso</strong> de
+                    cada producto automáticamente. Especifica la talla (o modelo), y el color.
+                  </p>
+                </div>
               </div>
             )}
           </div>

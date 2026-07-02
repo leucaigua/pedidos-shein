@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star } from 'lucide-react';
+import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star, Sparkles } from 'lucide-react';
 
 const COMO_FUNCIONA = [
   { icon: Camera, paso: '1', titulo: 'Sube tus capturas', desc: 'Toma una captura de cada producto en SHEIN con el precio visible y súbelas — una o varias a la vez. Cada captura es un artículo de tu pedido.' },
@@ -79,6 +79,35 @@ export default function LandingPage() {
             <Link href="/pedir" className="inline-block bg-[#1A1A1A] hover:bg-[#3D3D3D] text-white font-semibold px-8 py-3 rounded-xl transition-colors">
               Empezar ahora
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Promo 60/40 */}
+      <section className="py-14 px-4 bg-[#1A1A1A]">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2A2A2A] to-[#1A1A1A] p-8 md:p-10 text-center">
+            <span className="inline-flex items-center gap-1.5 bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">
+              <Sparkles className="w-3.5 h-3.5" /> Reserva fácil
+            </span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">
+              Aparta tu pedido con solo el <span className="text-[#FFD700]">60%</span>
+            </h2>
+            <p className="text-gray-300 max-w-xl mx-auto mb-8 leading-relaxed">
+              No pagues todo de una vez. Abona el <strong className="text-white">60% hoy</strong> para
+              procesar tu pedido y cancela el <strong className="text-white">40% restante</strong> cuando
+              lo retires. ¡Trae lo que quieres de SHEIN pagando menos hoy!
+            </p>
+            <div className="flex justify-center gap-4 sm:gap-6">
+              <div className="flex-1 max-w-[160px] bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-3xl font-display font-bold text-[#FFD700]">60%</p>
+                <p className="text-xs text-gray-400 mt-1">Hoy, para procesar tu pedido</p>
+              </div>
+              <div className="flex-1 max-w-[160px] bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-3xl font-display font-bold text-white">40%</p>
+                <p className="text-xs text-gray-400 mt-1">Al retirar tu pedido</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

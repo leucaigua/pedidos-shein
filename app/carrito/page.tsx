@@ -5,12 +5,14 @@ import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
-import { calcularDesgloseCarrito, formatUSD } from '@/lib/calculations';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package } from 'lucide-react';
+import { calcularDesgloseCarrito, calcularAbono, calcularRestante, formatUSD } from '@/lib/calculations';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles } from 'lucide-react';
 
 export default function CarritoPage() {
   const { items, removeItem, updateQty, totalItems } = useCart();
   const desglose = calcularDesgloseCarrito(items);
+  const abono = calcularAbono(desglose.total);
+  const restante = calcularRestante(desglose.total);
 
   if (totalItems === 0) {
     return (
@@ -165,8 +167,26 @@ export default function CarritoPage() {
                   <span>{formatUSD(desglose.comision)}</span>
                 </div>
                 <div className="border-t border-gray-100 pt-3 flex justify-between font-bold text-base">
-                  <span className="text-[#1A1A1A]">Total USD</span>
+                  <span className="text-[#1A1A1A]">Total del pedido</span>
                   <span className="text-[#1A1A1A] text-lg">{formatUSD(desglose.total)}</span>
+                </div>
+              </div>
+
+              {/* Desglose de pago 60/40 */}
+              <div className="bg-[#1A1A1A] text-white rounded-xl p-4 mb-4">
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                  <span className="text-xs font-semibold uppercase tracking-wide">
+                    Paga hoy solo el 60%
+                  </span>
+                </div>
+                <div className="flex items-end justify-between mb-1">
+                  <span className="text-sm text-gray-300">Abonas hoy (60%)</span>
+                  <span className="text-2xl font-display font-bold">{formatUSD(abono)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-400 pt-2 border-t border-white/10">
+                  <span>Restante al retirar (40%)</span>
+                  <span>{formatUSD(restante)}</span>
                 </div>
               </div>
 
@@ -174,12 +194,12 @@ export default function CarritoPage() {
                 href="/checkout"
                 className="w-full bg-[#1A1A1A] hover:bg-[#3D3D3D] text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
-                Proceder al pago
+                Pagar 60% y procesar
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
               <p className="text-xs text-gray-400 text-center mt-3">
-                El precio final incluye envío aéreo y comisión de servicio.
+                Abonas el 60% para procesar tu pedido. El 40% restante lo pagas al retirarlo.
               </p>
             </div>
           </div>

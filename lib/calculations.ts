@@ -3,6 +3,20 @@ import type { DesglosePrecio, ItemCarrito } from '@/types';
 const TARIFA_POR_UNIDAD = 16.20;   // USD por cada ½ kg o fracción
 const TARIFA_MINIMA     = 16.20;   // flete mínimo
 
+// Esquema de pago: 60% para procesar el pedido, 40% al retirar
+export const ABONO_PCT = 0.6;
+export const RESTANTE_PCT = 0.4;
+
+/** Monto a pagar hoy (60%) para procesar el pedido. */
+export function calcularAbono(total: number): number {
+  return total * ABONO_PCT;
+}
+
+/** Monto pendiente (40%) que se paga al retirar el pedido. */
+export function calcularRestante(total: number): number {
+  return total * RESTANTE_PCT;
+}
+
 /**
  * Flete = MAX($16.20, ceil(peso ÷ 0.5) × $16.20)
  */

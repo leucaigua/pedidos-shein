@@ -46,7 +46,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <AtSign className="w-4 h-4" />
-              <span>@pedidosshein</span>
+              <span>@shein.maturin</span>
             </li>
             <li className="flex items-center gap-2">
               <Mail className="w-4 h-4" />

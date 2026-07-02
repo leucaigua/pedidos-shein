@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { estadoLabel, estadoEmoji, estadoColor } from '@/lib/utils';
-import { formatUSD } from '@/lib/calculations';
+import { formatUSD, calcularAbono, calcularRestante } from '@/lib/calculations';
 import type { EstadoPedido } from '@/types';
 import { Search, Loader2, Package, AlertCircle, CheckCircle, Truck, ExternalLink } from 'lucide-react';
 
@@ -218,8 +218,25 @@ function MisPedidosContent() {
                 <span className="font-medium">{pedido.items?.length ?? 0} artículo(s)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Total pagado</span>
+                <span className="text-gray-500">Total del pedido</span>
                 <span className="font-bold text-[#1A1A1A]">{formatUSD(pedido.total)}</span>
+              </div>
+            </div>
+
+            {/* Estado de pago 60/40 */}
+            <div className="border border-gray-100 rounded-xl overflow-hidden">
+              <div className="flex justify-between items-center px-4 py-3 bg-green-50">
+                <span className="text-sm text-green-700 flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" /> Abonado (60%)
+                </span>
+                <span className="font-semibold text-green-700">{formatUSD(calcularAbono(pedido.total))}</span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3 bg-amber-50 border-t border-amber-100">
+                <div>
+                  <p className="text-sm font-semibold text-amber-700">Pendiente por cancelar (40%)</p>
+                  <p className="text-xs text-amber-600/80">Se paga al retirar tu pedido</p>
+                </div>
+                <span className="font-bold text-amber-700 text-lg">{formatUSD(calcularRestante(pedido.total))}</span>
               </div>
             </div>
 
