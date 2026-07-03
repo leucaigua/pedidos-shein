@@ -42,6 +42,8 @@ function MisPedidosContent() {
       setCodigo(c);
       buscarPedido(c);
     }
+    // Solo al cambiar los params de la URL; buscarPedido es estable en la práctica.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   async function buscarPedido(cod?: string) {

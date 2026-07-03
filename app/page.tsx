@@ -167,7 +167,7 @@ export default function LandingPage() {
                     <Star key={i} className="w-4 h-4 fill-[#1A1A1A] text-[#1A1A1A]" />
                   ))}
                 </div>
-                <p className="text-[#737373] text-sm leading-relaxed mb-4">"{texto}"</p>
+                <p className="text-[#737373] text-sm leading-relaxed mb-4">&ldquo;{texto}&rdquo;</p>
                 <div>
                   <p className="font-semibold text-[#1A1A1A] text-sm">{nombre}</p>
                   <p className="text-xs text-[#737373]">{ciudad}</p>

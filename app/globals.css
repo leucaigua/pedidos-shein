@@ -24,3 +24,8 @@ h1, h2, h3, .font-display {
 html {
   scroll-behavior: smooth;
 }
+
+.css-ekq38o {
+    max-width: 100%;
+    width: 1200px !important;
+}

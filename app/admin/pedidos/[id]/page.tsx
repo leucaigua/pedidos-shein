@@ -13,7 +13,6 @@ import {
   Loader2,
   MessageCircle,
   ExternalLink,
-  Package,
   Save,
   CheckCircle,
   Truck,

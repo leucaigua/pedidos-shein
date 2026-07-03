@@ -2,47 +2,36 @@
 
 import { useEffect } from 'react';
 
-/* Cuenta oficial de TikTok */
-const TIKTOK_USER = 'shein.maturin';
-const TIKTOK_PROFILE = `https://www.tiktok.com/@${TIKTOK_USER}`;
+/* ID del widget de Elfsight (TikTok Feed) */
+const ELFSIGHT_APP_ID = 'elfsight-app-a69feeeb-fffd-4f58-a82a-606d3f8b1176';
+
+declare global {
+  interface Window {
+    eapps?: { Platform?: { initWidgetsFromBuffer?: () => void } };
+  }
+}
 
 export default function TikTokCarousel() {
-  // Carga el script oficial de TikTok, que convierte el <blockquote> en un
-  // carrusel real con las miniaturas de los últimos videos de la cuenta.
+  // Carga la plataforma de Elfsight, que renderiza el carrusel dentro del <div>.
   useEffect(() => {
-    const existing = document.getElementById('tiktok-embed-script');
-    if (existing) existing.remove();
+    const existing = document.getElementById('elfsight-platform-script');
+    if (existing) {
+      // Si ya está cargada, pídele que re-escanee el DOM por nuevos widgets.
+      window.eapps?.Platform?.initWidgetsFromBuffer?.();
+      return;
+    }
 
     const script = document.createElement('script');
-    script.id = 'tiktok-embed-script';
-    script.src = 'https://www.tiktok.com/embed.js';
+    script.id = 'elfsight-platform-script';
+    script.src = 'https://elfsightcdn.com/platform.js';
     script.async = true;
     document.body.appendChild(script);
-
-    return () => {
-      script.remove();
-    };
   }, []);
 
   return (
     <section className="py-16 px-4 bg-white" id="tiktok">
       <div className="max-w-6xl mx-auto">
-        {/* Embed oficial de TikTok — muestra los últimos videos reales de la cuenta */}
-        <div className="flex justify-center">
-          <blockquote
-            className="tiktok-embed"
-            cite={TIKTOK_PROFILE}
-            data-unique-id={TIKTOK_USER}
-            data-embed-type="creator"
-            style={{ maxWidth: 1100, minWidth: 288, width: '100%' }}
-          >
-            <section>
-              <a target="_blank" rel="noopener noreferrer" href={`${TIKTOK_PROFILE}?refer=creator_embed`}>
-                @{TIKTOK_USER}
-              </a>
-            </section>
-          </blockquote>
-        </div>
+        <div className={ELFSIGHT_APP_ID} data-elfsight-app-lazy />
       </div>
     </section>
   );
