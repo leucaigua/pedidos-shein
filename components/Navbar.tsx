@@ -4,12 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from './CartContext';
 import { useAuth } from './AuthContext';
+import { useCatalogo } from './CatalogoContext';
 import { ShoppingCart, Package, Menu, X, User as UserIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const { totalItems } = useCart();
   const { user } = useAuth();
+  const { hayCatalogo } = useCatalogo();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -33,9 +35,11 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/catalogo" className="text-sm font-medium text-[#737373] hover:text-[#1A1A1A] transition-colors">
-            Catálogo
-          </Link>
+          {hayCatalogo && (
+            <Link href="/catalogo" className="text-sm font-medium text-[#737373] hover:text-[#1A1A1A] transition-colors">
+              Catálogo
+            </Link>
+          )}
           <Link href="/pedir" className="text-sm font-medium text-[#737373] hover:text-[#1A1A1A] transition-colors">
             Hacer pedido
           </Link>
@@ -74,9 +78,11 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-[#E5E5E5] px-4 py-4 flex flex-col gap-4">
-          <Link href="/catalogo" className="text-sm font-medium text-[#3D3D3D]" onClick={() => setMenuOpen(false)}>
-            Catálogo
-          </Link>
+          {hayCatalogo && (
+            <Link href="/catalogo" className="text-sm font-medium text-[#3D3D3D]" onClick={() => setMenuOpen(false)}>
+              Catálogo
+            </Link>
+          )}
           <Link href="/pedir" className="text-sm font-medium text-[#3D3D3D]" onClick={() => setMenuOpen(false)}>
             Hacer pedido
           </Link>

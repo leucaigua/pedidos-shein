@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TikTokCarousel from '@/components/TikTokCarousel';
 import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star, Sparkles } from 'lucide-react';
 
 const COMO_FUNCIONA = [
@@ -54,8 +55,11 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* TikTok — parte humana de la marca */}
+      <TikTokCarousel />
+
       {/* Cómo funciona */}
-      <section className="py-16 px-4 bg-white" id="como-funciona">
+      <section className="py-16 px-4 bg-[#FAFAFA]" id="como-funciona">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-display font-bold text-center text-[#1A1A1A] mb-3">¿Cómo funciona?</h2>
           <p className="text-center text-[#737373] mb-12">Tres pasos y tu pedido está en camino.</p>

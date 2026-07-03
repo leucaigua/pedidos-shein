@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/CartContext";
 import { AuthProvider } from "@/components/AuthContext";
+import { CatalogoProvider } from "@/components/CatalogoContext";
 
 export const metadata: Metadata = {
   title: "Pedidos SHEIN Venezuela — Compra desde USA con envío aéreo",
@@ -23,7 +24,9 @@ export default function RootLayout({
     <html lang="es" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[#FAFAFA] text-[#212121]">
         <AuthProvider>
-          <CartProvider>{children}</CartProvider>
+          <CatalogoProvider>
+            <CartProvider>{children}</CartProvider>
+          </CatalogoProvider>
         </AuthProvider>
       </body>
     </html>

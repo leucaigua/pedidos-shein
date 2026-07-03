@@ -1,9 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle, AtSign, Mail } from 'lucide-react';
 import NewsletterForm from './NewsletterForm';
+import { useCatalogo } from './CatalogoContext';
 
 export default function Footer() {
+  const { hayCatalogo } = useCatalogo();
+
   return (
     <footer className="bg-[#1A1A1A] text-white mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -28,7 +33,9 @@ export default function Footer() {
           <p className="font-semibold mb-3 text-gray-300 text-sm uppercase tracking-wide">Navegación</p>
           <ul className="space-y-2 text-sm text-gray-400">
             <li><Link href="/" className="hover:text-white transition-colors">Inicio</Link></li>
-            <li><Link href="/catalogo" className="hover:text-white transition-colors">Catálogo</Link></li>
+            {hayCatalogo && (
+              <li><Link href="/catalogo" className="hover:text-white transition-colors">Catálogo</Link></li>
+            )}
             <li><Link href="/pedir" className="hover:text-white transition-colors">Hacer pedido</Link></li>
             <li><Link href="/mis-pedidos" className="hover:text-white transition-colors">Seguimiento de pedido</Link></li>
           </ul>
@@ -50,7 +57,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
-              <span>pedidosshein@gmail.com</span>
+              <span>info@pedidosshein.com</span>
             </li>
           </ul>
         </div>
