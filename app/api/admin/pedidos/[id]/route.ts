@@ -29,7 +29,7 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
   const allowed = [
-    'estado', 'nota_admin', 'tracking_numero', 'tracking_url',
+    'estado', 'estado_pago', 'nota_admin', 'tracking_numero', 'tracking_url',
     'items', 'subtotal', 'costo_envio', 'costo_proteccion', 'comision', 'total',
   ];
   const updates: Record<string, unknown> = {};

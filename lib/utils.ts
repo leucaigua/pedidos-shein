@@ -1,4 +1,4 @@
-import type { EstadoPedido } from '@/types';
+import type { EstadoPedido, EstadoPago } from '@/types';
 
 export function estadoLabel(estado: EstadoPedido): string {
   const labels: Record<EstadoPedido, string> = {
@@ -31,6 +31,33 @@ export function estadoColor(estado: EstadoPedido): string {
     entregado: 'bg-green-100 text-green-800',
   };
   return colors[estado] ?? 'bg-gray-100 text-gray-800';
+}
+
+export function estadoPagoLabel(estado: EstadoPago): string {
+  const labels: Record<EstadoPago, string> = {
+    pendiente: 'Pendiente de pago',
+    abono_60: 'Abonó 60%',
+    pagado_total: 'Pagado en su totalidad',
+  };
+  return labels[estado] ?? labels.pendiente;
+}
+
+export function estadoPagoEmoji(estado: EstadoPago): string {
+  const emojis: Record<EstadoPago, string> = {
+    pendiente: '🔴',
+    abono_60: '🟡',
+    pagado_total: '🟢',
+  };
+  return emojis[estado] ?? emojis.pendiente;
+}
+
+export function estadoPagoColor(estado: EstadoPago): string {
+  const colors: Record<EstadoPago, string> = {
+    pendiente: 'bg-red-100 text-red-800',
+    abono_60: 'bg-amber-100 text-amber-800',
+    pagado_total: 'bg-green-100 text-green-800',
+  };
+  return colors[estado] ?? colors.pendiente;
 }
 
 export function whatsappUrl(numero: string, mensaje: string): string {

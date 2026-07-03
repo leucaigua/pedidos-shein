@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from('pedidos')
-    .select('codigo, estado, created_at, cliente_nombre, total, items, tracking_numero, tracking_url')
+    .select('codigo, estado, estado_pago, created_at, cliente_nombre, total, items, tracking_numero, tracking_url')
     .eq('codigo', codigo.toUpperCase())
     .single();
 

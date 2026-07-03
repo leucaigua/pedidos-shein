@@ -101,6 +101,9 @@ ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS descuento NUMERIC DEFAULT 0;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tracking_numero TEXT;
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tracking_url TEXT;
 
+-- Estado de pago 60/40 (lo gestiona el admin): 'pendiente' | 'abono_60' | 'pagado_total'
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS estado_pago TEXT DEFAULT 'pendiente';
+
 -- Valores por defecto de configuración
 INSERT INTO config (clave, valor) VALUES
   ('comision_pct', '10'),

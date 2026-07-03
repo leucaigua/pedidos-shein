@@ -5,6 +5,12 @@ export type EstadoPedido =
   | 'en_transito'
   | 'entregado';
 
+// Progreso del pago (esquema 60% abono / 40% al retirar).
+export type EstadoPago =
+  | 'pendiente'       // sin pago registrado
+  | 'abono_60'        // pagó el 60% (abono)
+  | 'pagado_total';   // pagó el 40% restante → pedido pagado en su totalidad
+
 export interface ItemCarrito {
   id: string;
   nombre: string;
@@ -56,6 +62,7 @@ export interface Pedido {
   codigo_cupon: string | null;
   total: number;
   metodo_pago: string;
+  estado_pago?: EstadoPago;
   items: ItemCarrito[];
   user_id?: string | null;
   cliente_email?: string | null;

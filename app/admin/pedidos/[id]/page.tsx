@@ -5,9 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { estadoLabel, estadoColor, estadoEmoji, whatsappUrl } from '@/lib/utils';
-import { formatUSD, calcularDesgloseCarrito } from '@/lib/calculations';
-import type { Pedido, EstadoPedido, ItemCarrito } from '@/types';
+import { estadoLabel, estadoColor, estadoEmoji, estadoPagoLabel, estadoPagoEmoji, whatsappUrl } from '@/lib/utils';
+import { formatUSD, calcularDesgloseCarrito, calcularAbono, calcularRestante } from '@/lib/calculations';
+import type { Pedido, EstadoPedido, EstadoPago, ItemCarrito } from '@/types';
 import {
   ArrowLeft,
   Loader2,
@@ -31,6 +31,8 @@ const ESTADOS_OPCIONES: EstadoPedido[] = [
   'en_transito',
   'entregado',
 ];
+
+const ESTADOS_PAGO_OPCIONES: EstadoPago[] = ['pendiente', 'abono_60', 'pagado_total'];
 
 /** Redimensiona una imagen a base64 (igual que en el formulario del cliente). */
 function resizeToBase64(file: File, maxWidth = 300): Promise<string> {
@@ -58,6 +60,7 @@ export default function DetallePedidoPage() {
   const [guardando, setGuardando] = useState(false);
   const [guardado, setGuardado] = useState(false);
   const [estadoSel, setEstadoSel] = useState<EstadoPedido>('pendiente_pago');
+  const [estadoPagoSel, setEstadoPagoSel] = useState<EstadoPago>('pendiente');
   const [notaAdmin, setNotaAdmin] = useState('');
   const [trackingNumero, setTrackingNumero] = useState('');
   const [trackingUrl, setTrackingUrl] = useState('');
@@ -77,6 +80,7 @@ export default function DetallePedidoPage() {
     if (data.pedido) {
       setPedido(data.pedido);
       setEstadoSel(data.pedido.estado);
+      setEstadoPagoSel(data.pedido.estado_pago ?? 'pendiente');
       setNotaAdmin(data.pedido.nota_admin ?? '');
       setTrackingNumero(data.pedido.tracking_numero ?? '');
       setTrackingUrl(data.pedido.tracking_url ?? '');
@@ -101,6 +105,7 @@ export default function DetallePedidoPage() {
         },
         body: JSON.stringify({
           estado: estadoSel,
+          estado_pago: estadoPagoSel,
           nota_admin: notaAdmin,
           tracking_numero: trackingNumero.trim(),
           tracking_url: trackingUrl.trim(),
@@ -600,6 +605,26 @@ export default function DetallePedidoPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Estado de pago 60/40 */}
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-500 mb-1">Estado de pago</label>
+              <select
+                value={estadoPagoSel}
+                onChange={(e) => setEstadoPagoSel(e.target.value as EstadoPago)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A]"
+              >
+                {ESTADOS_PAGO_OPCIONES.map((e) => (
+                  <option key={e} value={e}>
+                    {estadoPagoEmoji(e)} {estadoPagoLabel(e)}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-2 flex justify-between text-xs text-gray-500">
+                <span>Abono 60%: <span className="font-semibold text-[#1A1A1A]">{formatUSD(calcularAbono(pedido.total))}</span></span>
+                <span>Resta 40%: <span className="font-semibold text-[#1A1A1A]">{formatUSD(calcularRestante(pedido.total))}</span></span>
+              </div>
             </div>
 
             {/* Seguimiento ZOOM — solo al marcar "En tránsito" */}

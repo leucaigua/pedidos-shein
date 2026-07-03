@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { estadoLabel, estadoEmoji, estadoColor } from '@/lib/utils';
 import { formatUSD, calcularAbono, calcularRestante } from '@/lib/calculations';
-import type { EstadoPedido } from '@/types';
+import type { EstadoPedido, EstadoPago } from '@/types';
 import { Search, Loader2, Package, AlertCircle, CheckCircle, Truck, ExternalLink } from 'lucide-react';
 
 const PASOS: { estado: EstadoPedido; label: string }[] = [
@@ -21,6 +21,7 @@ const PASOS: { estado: EstadoPedido; label: string }[] = [
 interface PedidoResumen {
   codigo: string;
   estado: EstadoPedido;
+  estado_pago?: EstadoPago | null;
   created_at: string;
   cliente_nombre: string;
   total: number;
@@ -73,6 +74,9 @@ function MisPedidosContent() {
   const pasoActual = pedido
     ? PASOS.findIndex((p) => p.estado === pedido.estado)
     : -1;
+  // Cuando el pedido está entregado, es el estado final: el último paso
+  // ("Entregado") debe verse completado, no como paso pendiente/actual.
+  const entregado = pedido?.estado === 'entregado';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -144,8 +148,8 @@ function MisPedidosContent() {
               <h3 className="font-semibold text-[#1A1A1A] mb-4 text-sm">Estado del pedido</h3>
               <div className="space-y-3">
                 {PASOS.map((paso, idx) => {
-                  const completado = idx < pasoActual;
-                  const actual = idx === pasoActual;
+                  const completado = idx < pasoActual || (entregado && idx === pasoActual);
+                  const actual = idx === pasoActual && !entregado;
                   const pendiente = idx > pasoActual;
                   return (
                     <div key={paso.estado} className="flex items-center gap-3">
@@ -225,22 +229,51 @@ function MisPedidosContent() {
               </div>
             </div>
 
-            {/* Estado de pago 60/40 */}
-            <div className="border border-gray-100 rounded-xl overflow-hidden">
-              <div className="flex justify-between items-center px-4 py-3 bg-green-50">
-                <span className="text-sm text-green-700 flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4" /> Abonado (60%)
-                </span>
-                <span className="font-semibold text-green-700">{formatUSD(calcularAbono(pedido.total))}</span>
-              </div>
-              <div className="flex justify-between items-center px-4 py-3 bg-amber-50 border-t border-amber-100">
-                <div>
-                  <p className="text-sm font-semibold text-amber-700">Pendiente por cancelar (40%)</p>
-                  <p className="text-xs text-amber-600/80">Se paga al retirar tu pedido</p>
+            {/* Estado de pago 60/40 — reflejo del estado que fija el admin */}
+            {(() => {
+              const estadoPago = pedido.estado_pago ?? 'pendiente';
+              const pago60 = estadoPago === 'abono_60' || estadoPago === 'pagado_total';
+              const pagoTotal = estadoPago === 'pagado_total';
+              return (
+                <div className="border border-gray-100 rounded-xl overflow-hidden">
+                  {/* Abono 60% */}
+                  <div className={`flex justify-between items-center px-4 py-3 ${pago60 ? 'bg-green-50' : 'bg-amber-50'}`}>
+                    <div>
+                      <p className={`text-sm font-semibold flex items-center gap-1.5 ${pago60 ? 'text-green-700' : 'text-amber-700'}`}>
+                        {pago60 ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                        {pago60 ? 'Abonado (60%)' : 'Abono pendiente (60%)'}
+                      </p>
+                      {!pago60 && <p className="text-xs text-amber-600/80">Abono para procesar tu pedido</p>}
+                    </div>
+                    <span className={`font-semibold ${pago60 ? 'text-green-700' : 'text-amber-700'}`}>
+                      {formatUSD(calcularAbono(pedido.total))}
+                    </span>
+                  </div>
+                  {/* Saldo 40% */}
+                  <div className={`flex justify-between items-center px-4 py-3 border-t ${pagoTotal ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
+                    <div>
+                      <p className={`text-sm font-semibold flex items-center gap-1.5 ${pagoTotal ? 'text-green-700' : 'text-amber-700'}`}>
+                        {pagoTotal ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                        {pagoTotal ? 'Saldo pagado (40%)' : 'Pendiente por cancelar (40%)'}
+                      </p>
+                      {!pagoTotal && <p className="text-xs text-amber-600/80">Se paga al retirar tu pedido</p>}
+                    </div>
+                    <span className={`font-bold text-lg ${pagoTotal ? 'text-green-700' : 'text-amber-700'}`}>
+                      {formatUSD(calcularRestante(pedido.total))}
+                    </span>
+                  </div>
+                  {/* Resumen cuando está todo pagado */}
+                  {pagoTotal && (
+                    <div className="flex justify-between items-center px-4 py-2.5 bg-green-100/60 border-t border-green-100">
+                      <span className="text-sm font-bold text-green-800 flex items-center gap-1.5">
+                        <CheckCircle className="w-4 h-4" /> Pagado en su totalidad
+                      </span>
+                      <span className="font-bold text-green-800">{formatUSD(pedido.total)}</span>
+                    </div>
+                  )}
                 </div>
-                <span className="font-bold text-amber-700 text-lg">{formatUSD(calcularRestante(pedido.total))}</span>
-              </div>
-            </div>
+              );
+            })()}
 
             {pedido.items && pedido.items.length > 0 && (
               <div>
