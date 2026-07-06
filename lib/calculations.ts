@@ -90,12 +90,27 @@ export function formatBsD(amount: number, tasa: number): string {
   }).format(amount * tasa) + ' Bs';
 }
 
+// Sufijo aleatorio cripto-seguro (sin caracteres ambiguos 0/O, 1/I).
+// Reemplaza Math.random para que los códigos de pedido NO sean adivinables ni
+// enumerables (antes: solo 10.000 combinaciones por día).
+const CODIGO_ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 símbolos
+
+function sufijoAleatorio(longitud: number): string {
+  const bytes = new Uint8Array(longitud);
+  globalThis.crypto.getRandomValues(bytes);
+  let out = '';
+  for (let i = 0; i < longitud; i++) {
+    out += CODIGO_ALFABETO[bytes[i] % CODIGO_ALFABETO.length];
+  }
+  return out;
+}
+
 export function generarCodigoPedido(): string {
   const fecha = new Date();
   const ymd =
     fecha.getFullYear().toString() +
     String(fecha.getMonth() + 1).padStart(2, '0') +
     String(fecha.getDate()).padStart(2, '0');
-  const rand = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-  return `PS-${ymd}-${rand}`;
+  // 7 símbolos ⇒ 32^7 ≈ 3.4×10^10 combinaciones: no enumerables.
+  return `PS-${ymd}-${sufijoAleatorio(7)}`;
 }

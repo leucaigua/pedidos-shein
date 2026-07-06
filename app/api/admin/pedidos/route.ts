@@ -24,13 +24,21 @@ export async function GET(req: NextRequest) {
 
   if (estado && estado !== 'todos') query = query.eq('estado', estado);
   if (busqueda) {
-    query = query.or(
-      `cliente_nombre.ilike.%${busqueda}%,codigo.ilike.%${busqueda}%,cliente_telefono.ilike.%${busqueda}%`
-    );
+    // Sanitiza el término: quita caracteres que romperían/inyectarían el
+    // filtro PostgREST (comas, paréntesis, comodines) y acota la longitud.
+    const q = busqueda.replace(/[,()%*\\]/g, ' ').trim().slice(0, 80);
+    if (q) {
+      query = query.or(
+        `cliente_nombre.ilike.%${q}%,codigo.ilike.%${q}%,cliente_telefono.ilike.%${q}%`
+      );
+    }
   }
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[admin/pedidos]', error);
+    return NextResponse.json({ error: 'Error al cargar pedidos' }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true, pedidos: data });
 }

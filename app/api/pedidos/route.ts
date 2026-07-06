@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
-import { generarCodigoPedido } from '@/lib/calculations';
+import { generarCodigoPedido, calcularDesgloseCarrito } from '@/lib/calculations';
+import { getConfig } from '@/lib/config';
+import { esAdmin, tokenDeRequest } from '@/lib/auth';
 import { notificarNuevoPedidoTelegram } from '@/lib/telegram';
 
 export async function POST(req: NextRequest) {
@@ -33,12 +35,42 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // Base del pedido (recalculada en el servidor, no se confía en el cliente)
-    const base =
-      Number(subtotal || 0) +
-      Number(costo_envio || 0) +
-      Number(costo_proteccion || 0) +
-      Number(comision || 0);
+    // ── Montos: NUNCA se confía en los que envía un cliente ──────────────
+    // • Admin autenticado (flujo "Cotización PDF"): los totales del PDF son
+    //   finales, se respetan tal cual los envía el panel.
+    // • Cliente/invitado (checkout): se RECALCULAN en el servidor a partir de
+    //   los ítems y la config (comisión, seguro). Los montos del body se ignoran.
+    const admin = await esAdmin(tokenDeRequest(req));
+
+    let subtotalCalc: number;
+    let envioCalc: number;
+    let proteccionCalc: number;
+    let comisionCalc: number;
+
+    if (admin) {
+      subtotalCalc = Number(subtotal || 0);
+      envioCalc = Number(costo_envio || 0);
+      proteccionCalc = Number(costo_proteccion || 0);
+      comisionCalc = Number(comision || 0);
+    } else {
+      const config = await getConfig();
+      const itemsCalc = (items as Array<Record<string, unknown>>).map((i) => ({
+        precio_usd: Number(i.precio_usd) || 0,
+        cantidad: Math.max(1, Number(i.cantidad) || 1),
+        peso_kg: Number(i.peso_kg) || 0,
+      }));
+      const desglose = calcularDesgloseCarrito(
+        itemsCalc as never,
+        config.comision_pct,
+        config.proteccion_activa,
+      );
+      subtotalCalc = desglose.producto;
+      envioCalc = desglose.envio;
+      proteccionCalc = desglose.proteccion;
+      comisionCalc = desglose.comision;
+    }
+
+    const base = subtotalCalc + envioCalc + proteccionCalc + comisionCalc;
 
     // ── Validar y aplicar cupón (server-side) ───────────────────────────
     let descuento = 0;
@@ -76,10 +108,10 @@ export async function POST(req: NextRequest) {
         cliente_direccion,
         nota_cliente,
         metodo_pago,
-        subtotal,
-        costo_envio,
-        costo_proteccion,
-        comision,
+        subtotal: subtotalCalc,
+        costo_envio: envioCalc,
+        costo_proteccion: proteccionCalc,
+        comision: comisionCalc,
         descuento,
         codigo_cupon: cuponValido?.codigo ?? null,
         total,

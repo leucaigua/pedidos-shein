@@ -1,5 +1,5 @@
 import type { ConfigApp, MetodoPago } from '@/types';
-import { supabase } from './supabase';
+import { getSupabaseAdmin } from './supabase';
 
 const DEFAULT_CONFIG: ConfigApp = {
   comision_pct: 10,
@@ -40,8 +40,11 @@ const DEFAULT_CONFIG: ConfigApp = {
   ],
 };
 
+// Solo debe llamarse desde el servidor (usa la service_role_key). La config
+// contiene datos_cuenta de los métodos de pago y ya NO es legible con la anon key.
 export async function getConfig(): Promise<ConfigApp> {
   try {
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.from('config').select('clave, valor');
     if (error || !data || data.length === 0) return DEFAULT_CONFIG;
 

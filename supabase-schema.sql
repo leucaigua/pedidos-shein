@@ -133,18 +133,22 @@ ON CONFLICT (clave) DO NOTHING;
 -- Habilitar RLS en pedidos
 ALTER TABLE pedidos ENABLE ROW LEVEL SECURITY;
 
--- Los pedidos son de solo lectura públicamente (para consultar por código)
-CREATE POLICY "Lectura pública de pedidos por código"
-  ON pedidos FOR SELECT
-  USING (true);
-
--- Solo autenticados pueden insertar pedidos (lo hace la API con service role)
--- Nota: el INSERT se hace desde la API con service_role_key que bypasea RLS
+-- ⚠️ SEGURIDAD: NO existe política de lectura pública para pedidos.
+-- La tabla contiene PII (nombre, cédula, teléfono, dirección, email). Toda
+-- lectura pasa por la API del servidor con service_role_key (que bypasea RLS):
+--   • Consulta por código  → GET /api/pedidos?codigo=...
+--   • "Mis pedidos"         → GET /api/mis-pedidos (requiere sesión)
+--   • Panel admin          → /api/admin/pedidos/* (requiere rol admin)
+-- Con la anon key (pública) NO se puede leer ningún pedido directamente.
+--
+-- Si venías de una versión anterior que sí tenía la política pública, elimínala:
+DROP POLICY IF EXISTS "Lectura pública de pedidos por código" ON pedidos;
 
 -- Habilitar RLS en catálogo
 ALTER TABLE catalogo ENABLE ROW LEVEL SECURITY;
 
--- El catálogo activo es público
+-- El catálogo activo es público (solo columnas de producto, sin PII)
+DROP POLICY IF EXISTS "Catálogo activo es público" ON catalogo;
 CREATE POLICY "Catálogo activo es público"
   ON catalogo FOR SELECT
   USING (activo = true);
@@ -152,10 +156,11 @@ CREATE POLICY "Catálogo activo es público"
 -- Habilitar RLS en config
 ALTER TABLE config ENABLE ROW LEVEL SECURITY;
 
--- La config es de solo lectura pública
-CREATE POLICY "Config es pública de solo lectura"
-  ON config FOR SELECT
-  USING (true);
+-- ⚠️ SEGURIDAD: la config incluye 'metodos_pago' con datos_cuenta (Zelle,
+-- Binance, Pago Móvil). NO se expone públicamente vía anon key. La app la lee
+-- en el servidor con service_role_key a través de GET /api/config, que solo
+-- devuelve los métodos de pago ACTIVOS al cliente.
+DROP POLICY IF EXISTS "Config es pública de solo lectura" ON config;
 
 -- Habilitar RLS en suscriptores (alta y lectura solo vía API con service role)
 ALTER TABLE suscriptores ENABLE ROW LEVEL SECURITY;

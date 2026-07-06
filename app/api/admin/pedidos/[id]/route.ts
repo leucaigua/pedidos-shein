@@ -53,7 +53,10 @@ export async function PATCH(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[admin/pedidos/:id PATCH]', error);
+    return NextResponse.json({ error: 'No se pudo actualizar el pedido' }, { status: 500 });
+  }
   return NextResponse.json({ ok: true, pedido: data });
 }
 
@@ -82,6 +85,9 @@ export async function DELETE(
   }
 
   const { error } = await supabase.from('pedidos').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[admin/pedidos/:id DELETE]', error);
+    return NextResponse.json({ error: 'No se pudo eliminar el pedido' }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }

@@ -21,11 +21,22 @@ export default function AdminConfigPage() {
   const [guardado, setGuardado] = useState(false);
 
   useEffect(() => {
-    fetch('/api/config')
-      .then((r) => r.json())
-      .then((d) => { if (d.config) setConfig(d.config); })
-      .catch(() => {})
-      .finally(() => setCargando(false));
+    (async () => {
+      try {
+        // Enviamos el token para recibir la config completa (incluye métodos
+        // de pago desactivados, que el público no recibe).
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch('/api/config', {
+          headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        const d = await res.json();
+        if (d.config) setConfig(d.config);
+      } catch {
+        // se queda con CONFIG_DEFAULT
+      } finally {
+        setCargando(false);
+      }
+    })();
   }, []);
 
   async function guardar() {

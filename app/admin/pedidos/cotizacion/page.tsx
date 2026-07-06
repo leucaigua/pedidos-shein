@@ -116,9 +116,21 @@ export default function CotizacionPage() {
         peso_kg: 0,
       }));
 
+      // El token de admin es obligatorio: la API respeta los totales del PDF
+      // (finales) solo para admins; sin él, recalcularía y añadiría envío/comisión.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError('Tu sesión expiró. Vuelve a iniciar sesión.');
+        setCreando(false);
+        return;
+      }
+
       const res = await fetch('/api/pedidos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           cliente_nombre: nombre.trim(),
           cliente_cedula: cedula.trim(),

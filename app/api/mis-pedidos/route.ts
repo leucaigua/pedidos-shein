@@ -10,20 +10,19 @@ export async function GET(req: NextRequest) {
 
   const supabase = getSupabaseAdmin();
 
-  // Datos del perfil para vincular pedidos hechos como invitado
-  const { data: perfil } = await supabase
-    .from('perfiles')
-    .select('telefono, email')
-    .eq('id', user.id)
-    .maybeSingle();
+  // ⚠️ SEGURIDAD (IDOR): vinculamos pedidos SOLO por identificadores que el
+  // usuario realmente posee:
+  //   • user_id de la sesión, y
+  //   • el email de la CUENTA (del token, verificado por Supabase).
+  // NO usamos el teléfono/email del perfil, porque el usuario puede editarlos
+  // (RLS "perfil propio update") y pondría el de una víctima para leer sus
+  // pedidos de invitado.
+  const email = (user.email ?? '').toLowerCase();
 
-  const email = (perfil?.email ?? user.email ?? '').toLowerCase();
-  const telefono = perfil?.telefono ?? '';
-
-  // OR: por user_id, por email, o por teléfono exacto (todos indexados)
+  // OR: por user_id o por email de la cuenta (ambos indexados).
+  // El email se descarta si trae caracteres que romperían el filtro PostgREST.
   const condiciones = [`user_id.eq.${user.id}`];
-  if (email) condiciones.push(`cliente_email.eq.${email}`);
-  if (telefono) condiciones.push(`cliente_telefono.eq.${telefono}`);
+  if (email && !/[,()]/.test(email)) condiciones.push(`cliente_email.eq.${email}`);
 
   const { data, error } = await supabase
     .from('pedidos')
@@ -31,7 +30,10 @@ export async function GET(req: NextRequest) {
     .or(condiciones.join(','))
     .order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[mis-pedidos]', error);
+    return NextResponse.json({ error: 'No se pudieron cargar tus pedidos' }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true, pedidos: data ?? [] });
 }

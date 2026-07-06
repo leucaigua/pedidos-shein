@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { aplicarRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
+  // Rate limit: evita fuerza bruta de códigos de cupón.
+  const limite = aplicarRateLimit(req, 'cupon-validar', 20, 60_000);
+  if (limite) return limite;
+
   try {
     const { codigo } = await req.json();
     if (!codigo || typeof codigo !== 'string') {

@@ -1,9 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import type { ProductoScraped } from '@/types';
+import { aplicarRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 20;
+
+// ─────────────────────────────────────────────
+// Anti-SSRF: solo se permite hacer fetch a dominios de shein.com.
+// `url.includes('shein.com')` era evadible (p. ej.
+// http://169.254.169.254/?x=shein.com). Aquí validamos el hostname real.
+// ─────────────────────────────────────────────
+function esHostSheinPermitido(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return h === 'shein.com' || h.endsWith('.shein.com');
+}
+
+function urlSheinSegura(raw: string): URL | null {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+  if (!esHostSheinPermitido(u.hostname)) return null;
+  return u;
+}
 
 // ─────────────────────────────────────────────
 // Helpers (portados de scraper/shein_scraper.py)
@@ -85,6 +108,14 @@ async function fetchMetaFromShare(url: string): Promise<ShareMeta> {
       timeout: 12000,
       maxRedirects: 5,
       responseType: 'text',
+      // Anti-SSRF también en redirects: cada salto debe seguir en shein.com.
+      beforeRedirect: (options: { hostname?: string }) => {
+        if (!options.hostname || !esHostSheinPermitido(options.hostname)) {
+          throw new Error('Redirección no permitida');
+        }
+      },
+      // Cota de tamaño: evita descargar respuestas gigantes.
+      maxContentLength: 5 * 1024 * 1024,
       // SHEIN a veces responde 4xx con el HTML útil igualmente
       validateStatus: () => true,
     });
@@ -194,13 +225,17 @@ async function scrape(url: string): Promise<ProductoScraped> {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: endpoint público que hace fetch de red (abuso/DoS).
+  const limite = aplicarRateLimit(req, 'scrape-product', 30, 60_000);
+  if (limite) return limite;
+
   try {
     const { url } = await req.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'URL requerida' }, { status: 400 });
     }
-    if (!url.includes('shein.com')) {
+    if (!urlSheinSegura(url)) {
       return NextResponse.json({ error: 'Solo se aceptan links de SHEIN' }, { status: 400 });
     }
 

@@ -1,15 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { aplicarRateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+const MAX_IMG_BYTES = 6 * 1024 * 1024; // 6 MB
+const TIPOS_IMG = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 export async function POST(req: NextRequest) {
+  // Rate limit: cada llamada consume saldo de la API de Anthropic.
+  const limite = aplicarRateLimit(req, 'verify-price', 15, 60_000);
+  if (limite) return limite;
+
   try {
     const formData = await req.formData();
     const file = formData.get('screenshot') as File | null;
 
     if (!file) {
       return NextResponse.json({ error: 'Captura requerida' }, { status: 400 });
+    }
+    if (!TIPOS_IMG.has(file.type)) {
+      return NextResponse.json(
+        { error: 'Formato no válido. Sube una imagen JPG, PNG, WEBP o GIF.' },
+        { status: 400 },
+      );
+    }
+    if (file.size > MAX_IMG_BYTES) {
+      return NextResponse.json(
+        { error: 'La imagen es demasiado grande (máx. 6 MB).' },
+        { status: 400 },
+      );
     }
 
     const bytes = await file.arrayBuffer();

@@ -25,7 +25,10 @@ export async function GET(req: NextRequest) {
   if (desde) query = query.gt('created_at', desde);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[admin/pedidos/nuevos]', error);
+    return NextResponse.json({ error: 'Error al consultar pedidos' }, { status: 500 });
+  }
 
   return NextResponse.json({
     ok: true,

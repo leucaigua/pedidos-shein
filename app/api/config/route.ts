@@ -3,9 +3,23 @@ import { getConfig } from '@/lib/config';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { esAdmin, tokenDeRequest } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const config = await getConfig();
-  return NextResponse.json({ ok: true, config });
+
+  // El admin (con token válido) recibe la config completa para poder editarla.
+  // El público solo recibe los métodos de pago ACTIVOS: no exponemos los
+  // datos_cuenta de métodos desactivados.
+  if (await esAdmin(tokenDeRequest(req))) {
+    return NextResponse.json({ ok: true, config });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    config: {
+      ...config,
+      metodos_pago: config.metodos_pago.filter((m) => m.activo),
+    },
+  });
 }
 
 export async function PATCH(req: NextRequest) {
