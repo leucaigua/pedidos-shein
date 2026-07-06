@@ -44,7 +44,7 @@ export default function LandingPage() {
             Trae lo que quieras de SHEIN directo a tus manos en Venezuela
           </h1>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            Compra cualquier producto de SHEIN USA sin tarjeta internacional.
+            Compra cualquier producto de SHEIN sin tarjeta internacional.
             Nosotros lo compramos por ti y te lo enviamos en días.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
