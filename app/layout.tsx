@@ -53,6 +53,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-TZ98S373');`}
         </Script>
         {/* End Google Tag Manager */}
+        {/* Google tag (gtag.js) */}
+        <Script
+          id="gtag-src"
+          src="https://www.googletagmanager.com/gtag/js?id=G-6MQGZ8M9VV"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-6MQGZ8M9VV');`}
+        </Script>
+        {/* End Google tag (gtag.js) */}
       </head>
       <body className="min-h-full flex flex-col bg-[#FAFAFA] text-[#212121]">
         {/* Google Tag Manager (noscript) */}
