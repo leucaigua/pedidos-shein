@@ -29,3 +29,25 @@ html {
     max-width: 100%;
     width: 1200px !important;
 }
+
+/* Carrusel de testimonios en loop infinito */
+@keyframes testimonios-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.testimonios-track {
+  display: flex;
+  width: max-content;
+  animation: testimonios-marquee 40s linear infinite;
+}
+
+.testimonios-marquee:hover .testimonios-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonios-track {
+    animation: none;
+  }
+}

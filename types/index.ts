@@ -11,6 +11,11 @@ export type EstadoPago =
   | 'abono_60'        // pagó el 60% (abono)
   | 'pagado_total';   // pagó el 40% restante → pedido pagado en su totalidad
 
+// Motivo por el que un pedido se archiva.
+export type MotivoArchivo =
+  | 'completado'  // pedido finalizado (llegó hasta entregado)
+  | 'no_pago';    // no se procesó porque el cliente no pagó
+
 export interface ItemCarrito {
   id: string;
   nombre: string;
@@ -68,6 +73,9 @@ export interface Pedido {
   cliente_email?: string | null;
   tracking_numero?: string | null;
   tracking_url?: string | null;
+  archivado?: boolean;
+  archivado_motivo?: MotivoArchivo | null;
+  archivado_en?: string | null;
 }
 
 export interface Perfil {

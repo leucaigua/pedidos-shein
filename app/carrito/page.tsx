@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
 import { calcularDesgloseCarrito, calcularAbono, calcularRestante, formatUSD } from '@/lib/calculations';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles, Clock } from 'lucide-react';
 
 export default function CarritoPage() {
   const { items, removeItem, updateQty, totalItems } = useCart();
@@ -48,9 +48,22 @@ export default function CarritoPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
-        <h1 className="text-3xl font-display font-bold text-[#1A1A1A] mb-8">
+        <h1 className="text-3xl font-display font-bold text-[#1A1A1A] mb-6">
           Carrito ({totalItems} artículo{totalItems !== 1 ? 's' : ''})
         </h1>
+
+        {/* Aviso de vigencia del carrito */}
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8">
+          <Clock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-900">
+            <p className="font-semibold mb-0.5">Tu carrito tiene una vigencia de 24 horas</p>
+            <p className="text-amber-800">
+              Debido a las fluctuaciones de inventario dentro de la plataforma de SHEIN,
+              los precios y la disponibilidad pueden cambiar. Actualiza tu carrito cada 24 horas
+              para confirmar los productos antes de procesar tu pedido.
+            </p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Lista de artículos */}

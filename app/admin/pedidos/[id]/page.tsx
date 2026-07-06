@@ -5,9 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { estadoLabel, estadoColor, estadoEmoji, estadoPagoLabel, estadoPagoEmoji, whatsappUrl } from '@/lib/utils';
+import { estadoLabel, estadoColor, estadoEmoji, estadoPagoLabel, estadoPagoEmoji, motivoArchivoLabel, motivoArchivoEmoji, whatsappUrl } from '@/lib/utils';
 import { formatUSD, calcularDesgloseCarrito, calcularAbono, calcularRestante } from '@/lib/calculations';
-import type { Pedido, EstadoPedido, EstadoPago, ItemCarrito } from '@/types';
+import type { Pedido, EstadoPedido, EstadoPago, MotivoArchivo, ItemCarrito } from '@/types';
 import {
   ArrowLeft,
   Loader2,
@@ -22,6 +22,8 @@ import {
   Plus,
   Trash2,
   ImagePlus,
+  ArchiveRestore,
+  Ban,
 } from 'lucide-react';
 
 const ESTADOS_OPCIONES: EstadoPedido[] = [
@@ -216,6 +218,30 @@ export default function DetallePedidoPage() {
       }
     } finally {
       setGuardandoItems(false);
+    }
+  }
+
+  // ── Archivar / restaurar ────────────────────────────────────────────────
+  const [archivando, setArchivando] = useState(false);
+
+  async function cambiarArchivo(body: { archivado: boolean; archivado_motivo?: MotivoArchivo }) {
+    if (!pedido) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    setArchivando(true);
+    try {
+      const res = await fetch(`/api/admin/pedidos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.ok) setPedido(data.pedido);
+    } finally {
+      setArchivando(false);
     }
   }
 
@@ -690,6 +716,54 @@ export default function DetallePedidoPage() {
               )}
               {guardando ? 'Guardando...' : guardado ? '¡Guardado!' : 'Guardar cambios'}
             </button>
+          </div>
+
+          {/* Archivar pedido */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <h2 className="font-display font-semibold text-[#1A1A1A] mb-1">Archivar pedido</h2>
+            {pedido.archivado ? (
+              <>
+                <p className="text-sm text-gray-500 mb-3">
+                  Este pedido está archivado
+                  {pedido.archivado_motivo
+                    ? ` como “${motivoArchivoEmoji(pedido.archivado_motivo)} ${motivoArchivoLabel(pedido.archivado_motivo)}”`
+                    : ''}
+                  .
+                </p>
+                <button
+                  onClick={() => cambiarArchivo({ archivado: false })}
+                  disabled={archivando}
+                  className="w-full border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+                >
+                  {archivando ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArchiveRestore className="w-4 h-4" />}
+                  Restaurar a activos
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500 mb-3">
+                  Sácalo de la vista activa moviéndolo al archivo.
+                </p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => cambiarArchivo({ archivado: true, archivado_motivo: 'completado' })}
+                    disabled={archivando}
+                    className="w-full border border-gray-200 hover:border-green-400 hover:bg-green-50 text-[#1A1A1A] font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+                  >
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    Archivar como completado
+                  </button>
+                  <button
+                    onClick={() => cambiarArchivo({ archivado: true, archivado_motivo: 'no_pago' })}
+                    disabled={archivando}
+                    className="w-full border border-gray-200 hover:border-gray-400 hover:bg-gray-50 text-[#1A1A1A] font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Ban className="w-4 h-4 text-gray-500" />
+                    Archivar: no pagó
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

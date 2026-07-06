@@ -104,6 +104,13 @@ ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tracking_url TEXT;
 -- Estado de pago 60/40 (lo gestiona el admin): 'pendiente' | 'abono_60' | 'pagado_total'
 ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS estado_pago TEXT DEFAULT 'pendiente';
 
+-- Archivado de pedidos (los saca de la vista activa del admin).
+-- archivado_motivo: 'completado' (entregado) | 'no_pago' (el cliente no pagó)
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS archivado BOOLEAN DEFAULT false;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS archivado_motivo TEXT;
+ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS archivado_en TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_pedidos_archivado ON pedidos(archivado);
+
 -- Valores por defecto de configuración
 INSERT INTO config (clave, valor) VALUES
   ('comision_pct', '10'),

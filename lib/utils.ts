@@ -1,4 +1,4 @@
-import type { EstadoPedido, EstadoPago } from '@/types';
+import type { EstadoPedido, EstadoPago, MotivoArchivo } from '@/types';
 
 export function estadoLabel(estado: EstadoPedido): string {
   const labels: Record<EstadoPedido, string> = {
@@ -58,6 +58,30 @@ export function estadoPagoColor(estado: EstadoPago): string {
     pagado_total: 'bg-green-100 text-green-800',
   };
   return colors[estado] ?? colors.pendiente;
+}
+
+export function motivoArchivoLabel(motivo: MotivoArchivo): string {
+  const labels: Record<MotivoArchivo, string> = {
+    completado: 'Completado',
+    no_pago: 'No pagó',
+  };
+  return labels[motivo] ?? motivo;
+}
+
+export function motivoArchivoEmoji(motivo: MotivoArchivo): string {
+  const emojis: Record<MotivoArchivo, string> = {
+    completado: '✅',
+    no_pago: '🚫',
+  };
+  return emojis[motivo] ?? '📁';
+}
+
+export function motivoArchivoColor(motivo: MotivoArchivo): string {
+  const colors: Record<MotivoArchivo, string> = {
+    completado: 'bg-green-100 text-green-800',
+    no_pago: 'bg-gray-200 text-gray-700',
+  };
+  return colors[motivo] ?? 'bg-gray-100 text-gray-800';
 }
 
 export function whatsappUrl(numero: string, mensaje: string): string {

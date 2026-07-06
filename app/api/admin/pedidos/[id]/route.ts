@@ -31,10 +31,18 @@ export async function PATCH(
   const allowed = [
     'estado', 'estado_pago', 'nota_admin', 'tracking_numero', 'tracking_url',
     'items', 'subtotal', 'costo_envio', 'costo_proteccion', 'comision', 'total',
+    'archivado', 'archivado_motivo',
   ];
   const updates: Record<string, unknown> = {};
   for (const key of allowed) {
     if (body[key] !== undefined) updates[key] = body[key];
+  }
+
+  // Sella/limpia la fecha de archivado según cambie el flag.
+  if (body.archivado === true) updates.archivado_en = new Date().toISOString();
+  else if (body.archivado === false) {
+    updates.archivado_en = null;
+    updates.archivado_motivo = null;
   }
 
   const supabase = getSupabaseAdmin();
@@ -47,4 +55,33 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, pedido: data });
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!(await esAdmin(tokenDeRequest(req)))) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+
+  const { id } = await params;
+  const supabase = getSupabaseAdmin();
+
+  // Solo se pueden eliminar pedidos previamente archivados (medida de seguridad).
+  const { data: pedido } = await supabase
+    .from('pedidos')
+    .select('archivado')
+    .eq('id', id)
+    .single();
+
+  if (!pedido) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  if (!pedido.archivado) {
+    return NextResponse.json(
+      { error: 'Solo se pueden eliminar pedidos archivados' },
+      { status: 409 }
+    );
+  }
+
+  const { error } = await supabase.from('pedidos').delete().eq('id', id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }

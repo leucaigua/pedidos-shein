@@ -10,11 +10,17 @@ export async function GET(req: NextRequest) {
   const supabase = getSupabaseAdmin();
   const estado = req.nextUrl.searchParams.get('estado');
   const busqueda = req.nextUrl.searchParams.get('q');
+  const archivado = req.nextUrl.searchParams.get('archivado') === 'true';
+  const motivo = req.nextUrl.searchParams.get('motivo');
 
   let query = supabase
     .from('pedidos')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order(archivado ? 'archivado_en' : 'created_at', { ascending: false });
+
+  // Por defecto solo pedidos activos; con ?archivado=true se ven los archivados.
+  query = query.eq('archivado', archivado);
+  if (archivado && motivo && motivo !== 'todos') query = query.eq('archivado_motivo', motivo);
 
   if (estado && estado !== 'todos') query = query.eq('estado', estado);
   if (busqueda) {

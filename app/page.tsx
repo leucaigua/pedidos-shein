@@ -21,6 +21,12 @@ const TESTIMONIOS = [
   { nombre: 'Valentina M.', ciudad: 'Caracas', texto: 'Me llegaron mis zapatos en solo 2 semanas y exactamente como los vi en SHEIN. Servicio excelente.', estrellas: 5 },
   { nombre: 'Carlos R.', ciudad: 'Maracaibo', texto: 'Ya llevo 3 pedidos y todos perfectos. El precio final es muy justo considerando el envío aéreo.', estrellas: 5 },
   { nombre: 'Daniela L.', ciudad: 'Valencia', texto: 'Me sorprendió lo rápido que llegó. El operador estuvo al pendiente por WhatsApp en todo momento.', estrellas: 5 },
+  { nombre: 'Génesis Á.', ciudad: 'Maturín', texto: 'Pedí ropa para toda la familia y llegó todo tal cual. En Maturín no había un servicio tan confiable como este.', estrellas: 5 },
+  { nombre: 'José Gregorio P.', ciudad: 'Maturín', texto: 'Al principio dudé, pero me atendieron súper bien y mi pedido llegó antes de lo que esperaba. Recomendadísimo.', estrellas: 5 },
+  { nombre: 'Mariangel R.', ciudad: 'Maturín', texto: 'Los precios son transparentes, sin sorpresas al final. Ya soy cliente fija y siempre quedo encantada.', estrellas: 5 },
+  { nombre: 'Luis Alberto F.', ciudad: 'Maturín', texto: 'Compré un reloj y unos lentes, todo original y bien empacado. El seguimiento por WhatsApp es un plus enorme.', estrellas: 5 },
+  { nombre: 'Yorgelis C.', ciudad: 'Maturín', texto: 'Me encantó que puedo pagar en bolívares por Pago Móvil. Todo el proceso fue fácil y rápido desde Maturín.', estrellas: 5 },
+  { nombre: 'Andrés Eduardo M.', ciudad: 'Maturín', texto: 'Excelente atención de principio a fin. Mis cosas llegaron en perfecto estado y justo a tiempo. 100% confiable.', estrellas: 5 },
 ];
 
 export default function LandingPage() {
@@ -156,18 +162,23 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonios */}
-      <section className="py-16 px-4 bg-[#FAFAFA]">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-16 bg-[#FAFAFA] overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4">
           <h2 className="text-3xl font-display font-bold text-center text-[#1A1A1A] mb-12">Lo que dicen nuestros clientes</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIOS.map(({ nombre, ciudad, texto, estrellas }) => (
-              <div key={nombre} className="bg-white rounded-2xl p-6 border border-[#E5E5E5]">
+        </div>
+        <div className="testimonios-marquee relative">
+          {/* Difuminado en los bordes para un loop más limpio */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 z-10 bg-gradient-to-r from-[#FAFAFA] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 z-10 bg-gradient-to-l from-[#FAFAFA] to-transparent" />
+          <div className="testimonios-track">
+            {[...TESTIMONIOS, ...TESTIMONIOS].map(({ nombre, ciudad, texto, estrellas }, i) => (
+              <div key={`${nombre}-${i}`} className="bg-white rounded-2xl p-6 border border-[#E5E5E5] w-[320px] shrink-0 flex flex-col mr-5">
                 <div className="flex mb-3">
-                  {Array.from({ length: estrellas }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-[#1A1A1A] text-[#1A1A1A]" />
+                  {Array.from({ length: estrellas }).map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-[#FACC15] text-[#FACC15]" />
                   ))}
                 </div>
-                <p className="text-[#737373] text-sm leading-relaxed mb-4">&ldquo;{texto}&rdquo;</p>
+                <p className="text-[#737373] text-sm leading-relaxed mb-4 flex-1">&ldquo;{texto}&rdquo;</p>
                 <div>
                   <p className="font-semibold text-[#1A1A1A] text-sm">{nombre}</p>
                   <p className="text-xs text-[#737373]">{ciudad}</p>
