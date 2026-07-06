@@ -1,5 +1,66 @@
 # Pedidos SHEIN 🛍️
 
+*🇬🇧 English · [🇪🇸 Español](#-español)*
+
+Web platform that lets people in **Venezuela** buy any **SHEIN** product **without needing
+an international credit card**. The customer uploads screenshots or links of the products
+they want, the platform automatically extracts the price and weight, calculates the air
+shipping cost (via **ZOOM Casilleros**) and generates the final total. We buy the products
+on the customer's behalf and deliver them in Venezuela.
+
+## How it works
+
+1. **Upload your screenshots** — The customer takes a screenshot (or pastes the link) of
+   each SHEIN product with the price visible. Each screenshot is one item of the order.
+2. **We calculate your price** — The price and weight of each product are extracted
+   automatically and shipping is added. The customer specifies size, model and color.
+3. **We confirm and buy** — The customer adds everything to the cart, pays, and we buy
+   and ship. They receive it within days in Venezuela.
+
+### Features
+
+- 🖼️ **Automatic product extraction** from SHEIN screenshots or links
+- 🧮 **Final price calculation** with currency conversion and weight-based air shipping
+- 🛒 **Cart and checkout** with coupon validation
+- 💳 **Multiple payment methods**: Pago Móvil (Bs), Zelle, Binance Pay and USD cash
+- 📦 **Catalog** of featured products
+- 👤 **User accounts** and order tracking ("My orders")
+- 📨 **Newsletter** and subscriber capture
+- 🔐 **Admin panel** to manage orders, quotes, catalog, subscribers and settings
+- 📱 Personalized support via **WhatsApp**
+
+## Tech stack
+
+| Area | Technology |
+|------|------------|
+| Framework | [Next.js 16](https://nextjs.org) (App Router) + React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS 4 |
+| Database / Auth | [Supabase](https://supabase.com) (Postgres + Auth) |
+| AI / Extraction | [Anthropic SDK](https://www.anthropic.com) + Cheerio (scraping) |
+| HTTP | Axios |
+| Icons | Lucide React |
+| Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
+| Node | ≥ 20.9.0 |
+
+## About me
+
+Hi 👋 I'm **Leu Caigua**, developer and creator of this platform. I built Pedidos SHEIN
+to solve a real problem in Venezuela: giving access to SHEIN shopping to people who don't
+have an international credit card, with transparent pricing and a simple experience from
+start to finish.
+
+- 💼 GitHub: [@leucaigua](https://github.com/leucaigua)
+- 📧 Contact: leurisecaigua@gmail.com
+
+> *Suggestions or questions? All contributions and feedback are welcome.*
+
+---
+
+## 🇪🇸 Español
+
+*[🇬🇧 English](#pedidos-shein-) · 🇪🇸 Español*
+
 Plataforma web que permite a personas en **Venezuela** comprar cualquier producto de
 **SHEIN sin necesidad de una tarjeta internacional**. El cliente sube capturas o enlaces
 de los productos que quiere, la plataforma extrae automáticamente el precio y el peso,
