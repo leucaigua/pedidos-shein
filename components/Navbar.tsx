@@ -57,8 +57,8 @@ export default function Navbar() {
             <UserIcon className="w-5 h-5" />
             {cuentaLabel}
           </Link>
-          <Link href="/carrito" className="relative p-2">
-            <ShoppingCart className="w-6 h-6 text-[#1A1A1A]" />
+          <Link href="/carrito" className="relative p-2" aria-label="Carrito">
+            <ShoppingCart className="w-6 h-6 text-[#1A1A1A]" aria-hidden="true" />
             {mounted && totalItems > 0 && (
               <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {totalItems}
