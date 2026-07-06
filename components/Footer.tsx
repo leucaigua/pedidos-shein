@@ -47,7 +47,7 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-gray-400">
             <li className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
-              <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+              <a href="https://wa.me/584121183253" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                 WhatsApp
               </a>
             </li>
