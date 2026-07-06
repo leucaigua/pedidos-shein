@@ -23,7 +23,7 @@ export default function Footer() {
             </p>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Traemos tus productos favoritos de SHEIN USA directo a Venezuela con
+            Traemos tus productos favoritos de SHEIN directo a Venezuela con
             envío aéreo rápido.
           </p>
         </div>

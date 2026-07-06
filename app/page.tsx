@@ -132,7 +132,7 @@ export default function LandingPage() {
               { icon: ShieldCheck, titulo: 'Compra protegida', desc: 'Seguro de carga ZOOM incluido en cada pedido.' },
               { icon: Calculator, titulo: 'Precio transparente', desc: 'Ves el precio final antes de confirmar. Sin costos ocultos.' },
               { icon: MessageCircle, titulo: 'Soporte WhatsApp', desc: 'Te acompañamos durante todo el proceso por WhatsApp.' },
-              { icon: CheckCircle, titulo: 'Cualquier producto SHEIN', desc: 'Si está en SHEIN USA, lo podemos traer. Ropa, accesorios, hogar y más.' },
+              { icon: CheckCircle, titulo: 'Cualquier producto SHEIN', desc: 'Si está en SHEIN, lo podemos traer. Ropa, accesorios, hogar y más.' },
               { icon: Star, titulo: 'Clientes satisfechos', desc: 'Cientos de pedidos exitosos entregados en todo el país.' },
             ].map(({ icon: Icon, titulo, desc }) => (
               <div key={titulo} className="bg-white rounded-2xl p-6 border border-[#E5E5E5]">
