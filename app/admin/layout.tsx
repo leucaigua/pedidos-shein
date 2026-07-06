@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import AlertaNuevosPedidos from './AlertaNuevosPedidos';
 import {
   Package,
   BookOpen,
@@ -142,6 +143,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex-1 md:ml-60 pt-0 md:pt-0">
         <div className="pt-14 md:pt-0">{children}</div>
       </div>
+
+      {/* Alerta de pedidos nuevos (sonido + notificación) */}
+      <AlertaNuevosPedidos />
     </div>
   );
 }

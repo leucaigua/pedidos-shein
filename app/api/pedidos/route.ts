@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { generarCodigoPedido } from '@/lib/calculations';
+import { notificarNuevoPedidoTelegram } from '@/lib/telegram';
 
 export async function POST(req: NextRequest) {
   try {
@@ -102,6 +103,16 @@ export async function POST(req: NextRequest) {
         .eq('codigo', cuponValido.codigo)
         .eq('usado', false);
     }
+
+    // Alerta de nuevo pedido por Telegram (no bloquea ni afecta la respuesta)
+    await notificarNuevoPedidoTelegram({
+      codigo,
+      cliente_nombre,
+      cliente_telefono,
+      total,
+      metodo_pago,
+      items,
+    });
 
     return NextResponse.json({ ok: true, codigo, id: data.id });
   } catch (e) {

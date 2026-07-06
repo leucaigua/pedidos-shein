@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pedidos SHEIN 🛍️
 
-## Getting Started
+Plataforma web que permite a personas en **Venezuela** comprar cualquier producto de
+**SHEIN sin necesidad de una tarjeta internacional**. El cliente sube capturas o enlaces
+de los productos que quiere, la plataforma extrae automáticamente el precio y el peso,
+calcula el costo de envío aéreo (vía **ZOOM Casilleros**) y genera el total final.
+Nosotros compramos los productos por el cliente y se los entregamos en Venezuela.
 
-First, run the development server:
+## ¿Cómo funciona?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Sube tus capturas** — El cliente toma una captura (o pega el enlace) de cada
+   producto de SHEIN con el precio visible. Cada captura es un artículo del pedido.
+2. **Calculamos tu precio** — Se extrae automáticamente el precio y el peso de cada
+   producto y se suma el envío. El cliente indica talla, modelo y color.
+3. **Confirmamos y compramos** — El cliente agrega todo al carrito, paga, y nosotros
+   compramos y enviamos. Lo recibe en días en Venezuela.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Funcionalidades
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 🖼️ **Extracción automática de productos** a partir de capturas o enlaces de SHEIN
+- 🧮 **Cálculo de precio final** con conversión y costo de envío aéreo por peso
+- 🛒 **Carrito y checkout** con validación de cupones
+- 💳 **Múltiples métodos de pago**: Pago Móvil (Bs), Zelle, Binance Pay y efectivo USD
+- 📦 **Catálogo** de productos destacados
+- 👤 **Cuentas de usuario** y seguimiento de pedidos ("Mis pedidos")
+- 📨 **Newsletter** y captación de suscriptores
+- 🔐 **Panel de administración** para gestionar pedidos, cotizaciones, catálogo,
+  suscriptores y configuración
+- 📱 Atención personalizada por **WhatsApp**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack tecnológico
 
-## Learn More
+| Área | Tecnología |
+|------|------------|
+| Framework | [Next.js 16](https://nextjs.org) (App Router) + React 19 |
+| Lenguaje | TypeScript |
+| Estilos | Tailwind CSS 4 |
+| Base de datos / Auth | [Supabase](https://supabase.com) (Postgres + Auth) |
+| IA / Extracción | [Anthropic SDK](https://www.anthropic.com) + Cheerio (scraping) |
+| HTTP | Axios |
+| Iconos | Lucide React |
+| Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
+| Node | ≥ 20.9.0 |
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Sobre mí
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Hola 👋 Soy **Leu Caigua**, desarrolladora y creadora de esta plataforma. Construí
+Pedidos SHEIN para resolver un problema real en Venezuela: dar acceso a las compras
+en SHEIN a personas que no cuentan con una tarjeta internacional, con precios
+transparentes y una experiencia sencilla de principio a fin.
 
-## Deploy on Vercel
+- 💼 GitHub: [@leucaigua](https://github.com/leucaigua)
+- 📧 Contacto: leurisecaigua@gmail.com
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> *¿Sugerencias o dudas? Toda contribución y feedback es bienvenido.*
