@@ -124,9 +124,9 @@ export default function TikTokCarousel() {
   return (
     <section className="pstk-section" id="tiktok" ref={sectionRef}>
       <div className="pstk-head">
-        <h2>Así llegan los paquetitos 📦</h2>
+        <h2>Así llegan tus paquetes 📦</h2>
         <p>
-          Pedidos reales de nuestras clientas — síguenos en{' '}
+          Pedidos reales de nuestros clientes — síguenos en{' '}
           <a href={TIKTOK_PROFILE} target="_blank" rel="noopener noreferrer">
             @shein.maturin
           </a>
