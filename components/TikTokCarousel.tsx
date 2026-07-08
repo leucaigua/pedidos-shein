@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /* ------------------------------------------------------------
    TUS VIDEOS — es lo único que mantienes.
@@ -14,6 +15,9 @@ const VIDEOS = [
   'https://www.tiktok.com/@shein.maturin/video/7597168282075991308',
   'https://www.tiktok.com/@shein.maturin/video/7593336123951172920',
   'https://www.tiktok.com/@shein.maturin/video/7555879547858701579',
+  'https://www.tiktok.com/@shein.maturin/video/7555877547045555468',
+  'https://www.tiktok.com/@shein.maturin/video/7462922784885247238',
+  'https://www.tiktok.com/@shein.maturin/video/7553720600276077835',
   'https://www.tiktok.com/@shein.maturin/video/7555877547045555468',
 ];
 
@@ -55,6 +59,48 @@ export default function TikTokCarousel() {
   useEffect(() => () => {
     if (previewTimer.current) window.clearTimeout(previewTimer.current);
   }, []);
+
+  // Auto-scroll + scroll manual (trackpad/swipe) + flechas.
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(false); // pausa mientras el mouse está encima
+  const resumeAtRef = useRef(0); // pausa temporal tras usar una flecha
+
+  function scrollByDir(dir: 1 | -1) {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    resumeAtRef.current = Date.now() + 1000;
+    vp.scrollBy({ left: dir * vp.clientWidth * 0.85, behavior: 'smooth' });
+  }
+
+  // Motor de auto-desplazamiento: mueve scrollLeft frame a frame y hace loop
+  // sin costuras al pasar el ancho de un set (la lista está duplicada).
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp || videos.length === 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const track = vp.firstElementChild as HTMLElement | null;
+    const SPEED = 0.5; // px por frame (~30px/s)
+    let raf = 0;
+
+    function setWidth(): number {
+      if (!track || track.children.length < 2) return 0;
+      const a = (track.children[0] as HTMLElement).offsetLeft;
+      const b = (track.children[1] as HTMLElement).offsetLeft;
+      return (b - a) * videos.length; // (ancho tarjeta + gap) * N
+    }
+
+    function tick() {
+      if (vp && !pausedRef.current && Date.now() >= resumeAtRef.current) {
+        vp.scrollLeft += SPEED;
+        const w = setWidth();
+        if (w > 0 && vp.scrollLeft >= w) vp.scrollLeft -= w;
+      }
+      raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [videos.length]);
 
   // Carga lazy: solo pide las miniaturas cuando la sección se acerca al viewport.
   useEffect(() => {
@@ -117,9 +163,8 @@ export default function TikTokCarousel() {
     }
   }, []);
 
-  // Duplicamos la lista una vez para que el marquee (-50%) haga un loop continuo.
+  // Duplicamos la lista una vez para que el loop de auto-scroll sea continuo.
   const loop = videos.concat(videos);
-  const speed = `${Math.max(30, videos.length * 8)}s`;
 
   return (
     <section className="pstk-section" id="tiktok" ref={sectionRef}>
@@ -133,18 +178,38 @@ export default function TikTokCarousel() {
         </p>
       </div>
 
-      <div className="pstk-marquee" style={{ ['--pstk-speed' as string]: speed }}>
-        {loop.map((v, i) => (
-          <a
-            key={i}
-            href={v.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pstk-card"
-            aria-label="Ver video en TikTok"
-            onMouseEnter={() => startPreview(i)}
-            onMouseLeave={stopPreview}
-          >
+      <div className="pstk-carousel">
+        <button
+          type="button"
+          className="pstk-arrow pstk-arrow-left"
+          aria-label="Anterior"
+          onClick={() => scrollByDir(-1)}
+        >
+          <ChevronLeft />
+        </button>
+
+        <div
+          className="pstk-viewport"
+          ref={viewportRef}
+          onMouseEnter={() => {
+            pausedRef.current = true;
+          }}
+          onMouseLeave={() => {
+            pausedRef.current = false;
+          }}
+        >
+          <div className="pstk-track">
+            {loop.map((v, i) => (
+              <a
+                key={i}
+                href={v.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pstk-card"
+                aria-label="Ver video en TikTok"
+                onMouseEnter={() => startPreview(i)}
+                onMouseLeave={stopPreview}
+              >
             {v.thumb ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img alt="" loading="lazy" src={v.thumb} />
@@ -170,8 +235,19 @@ export default function TikTokCarousel() {
               </span>
             ) : null}
             <span className="pstk-handle">{v.handle}</span>
-          </a>
-        ))}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="pstk-arrow pstk-arrow-right"
+          aria-label="Siguiente"
+          onClick={() => scrollByDir(1)}
+        >
+          <ChevronRight />
+        </button>
       </div>
 
       <style jsx>{`
@@ -204,32 +280,61 @@ export default function TikTokCarousel() {
           text-underline-offset: 3px;
         }
 
-        /* Marquee: la pista contiene la lista dos veces; el CSS la desliza
-           -50% y hace loop, lo que se lee como una cinta infinita. */
-        .pstk-marquee {
+        /* Carrusel: viewport con scroll nativo + pista de tarjetas duplicada.
+           El auto-scroll y las flechas mueven scrollLeft por JS. */
+        .pstk-carousel {
+          position: relative;
+        }
+        .pstk-viewport {
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE/Edge */
+        }
+        .pstk-viewport::-webkit-scrollbar {
+          display: none; /* Chrome/Safari */
+        }
+        .pstk-track {
           display: flex;
           width: max-content;
           gap: 20px;
-          padding: 4px 0;
-          animation: pstk-scroll var(--pstk-speed, 45s) linear infinite;
-          will-change: transform;
+          padding: 4px 24px;
         }
-        .pstk-marquee:hover {
-          animation-play-state: paused;
+
+        /* Flechas de navegación */
+        .pstk-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 6;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          color: #fff;
+          cursor: pointer;
+          background: rgba(20, 20, 20, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          backdrop-filter: blur(6px);
+          transition: background 0.2s ease, opacity 0.2s ease;
         }
-        @keyframes pstk-scroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(calc(-50% - 10px));
-          }
+        .pstk-arrow:hover {
+          background: rgba(40, 40, 40, 0.85);
         }
-        @media (prefers-reduced-motion: reduce) {
-          .pstk-marquee {
-            animation: none;
-            overflow-x: auto;
-            width: auto;
+        .pstk-arrow :global(svg) {
+          width: 22px;
+          height: 22px;
+        }
+        .pstk-arrow-left {
+          left: 12px;
+        }
+        .pstk-arrow-right {
+          right: 12px;
+        }
+        @media (max-width: 640px) {
+          .pstk-arrow {
+            display: none; /* en móvil se navega con swipe */
           }
         }
 
