@@ -171,7 +171,7 @@ export default function TikTokCarousel() {
       <div className="pstk-head">
         <h2>Así llegan tus paquetes 📦</h2>
         <p>
-          Pedidos reales de nuestros clientes — síguenos en{' '}
+          Pedidos reales de nuestros clientes — síguenos en TikTok{' '}
           <a href={TIKTOK_PROFILE} target="_blank" rel="noopener noreferrer">
             @shein.maturin
           </a>

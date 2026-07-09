@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TikTokCarousel from '@/components/TikTokCarousel';
+import InstagramFeed from '@/components/InstagramFeed';
 import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star, Sparkles } from 'lucide-react';
 
 const COMO_FUNCIONA = [
@@ -188,6 +189,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Instagram — feed de la cuenta */}
+      <InstagramFeed />
 
       {/* CTA final */}
       <section className="py-16 px-4 bg-[#1A1A1A]">

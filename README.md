@@ -28,6 +28,7 @@ on the customer's behalf and deliver them in Venezuela.
 - 📨 **Newsletter** and subscriber capture
 - 🔐 **Admin panel** to manage orders, quotes, catalog, subscribers and settings
 - 📱 Personalized support via **WhatsApp**
+- 🎬 **Self-hosted social feeds** — custom TikTok and Instagram sections on the home page
 
 ## Tech stack
 
@@ -42,6 +43,39 @@ on the customer's behalf and deliver them in Venezuela.
 | Icons | Lucide React |
 | Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
 | Node | ≥ 20.9.0 |
+
+## Social feeds
+
+The home page shows two self-hosted social sections instead of paid third-party widgets
+(Elfsight/Behold). Both live in `components/` and are rendered from `app/page.tsx`.
+
+### `TikTokCarousel.tsx`
+
+Auto-scrolling carousel of TikTok videos with hover-to-play preview and arrow navigation.
+Video URLs are hardcoded in the `VIDEOS` array at the top of the file — thumbnails and
+titles are fetched at runtime from TikTok's public **oEmbed** endpoint (no API key). If a
+thumbnail can't be fetched it falls back to a plain card that still links to the video.
+
+- **To update:** paste/replace the TikTok links in the `VIDEOS` array.
+- Optional `PROXY` constant to route oEmbed calls through a caching Cloudflare Worker.
+
+### `InstagramFeed.tsx`
+
+Edge-to-edge grid (6 cols desktop / 4 tablet / 3 mobile) of the latest **@shein.maturin**
+posts, with video/carousel badges and a hover overlay. It fetches a clean JSON feed from
+a **Cloudflare Worker** (`instagram-feed-worker.js`) that talks to the official Instagram
+API, caches the response 3 h and auto-refreshes the long-lived token via cron — so the
+access token is never exposed to the browser.
+
+- **Config:** set `FEED_URL` at the top of the file to the Worker's `/feed` URL.
+- **Fallback:** if `FEED_URL` is empty or the Worker fails, it uses the `MANUAL_POSTS`
+  array (and hides the section entirely if there's nothing to show).
+- **Worker setup:** see the step-by-step instructions in the header comment of
+  `instagram-feed-worker.js` (Instagram professional account + Meta app token + KV binding
+  named `IG` + cron trigger).
+
+> Note: because the Worker caches the feed for 3 hours, a brand-new Instagram post can take
+> up to ~3 h to appear on the site.
 
 ## About me
 
@@ -88,6 +122,7 @@ Nosotros compramos los productos por el cliente y se los entregamos en Venezuela
 - 🔐 **Panel de administración** para gestionar pedidos, cotizaciones, catálogo,
   suscriptores y configuración
 - 📱 Atención personalizada por **WhatsApp**
+- 🎬 **Feeds sociales propios** — secciones a medida de TikTok e Instagram en el home (sin widgets de terceros tipo Elfsight)
 
 ## Stack tecnológico
 
@@ -102,6 +137,42 @@ Nosotros compramos los productos por el cliente y se los entregamos en Venezuela
 | Iconos | Lucide React |
 | Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
 | Node | ≥ 20.9.0 |
+
+
+## Feeds sociales
+
+El home muestra dos secciones sociales propias en lugar de widgets de pago de terceros
+(Elfsight/Behold). Ambas viven en `components/` y se renderizan desde `app/page.tsx`.
+
+### `TikTokCarousel.tsx`
+
+Carrusel con auto-scroll de videos de TikTok, con previsualización al pasar el mouse
+(reproduce el video mudo) y navegación por flechas. Las URLs de los videos están fijas en
+el arreglo `VIDEOS` al inicio del archivo — las miniaturas y títulos se obtienen en tiempo
+real desde el endpoint público **oEmbed** de TikTok (sin API key). Si una miniatura no se
+puede cargar, muestra una tarjeta simple que igual enlaza al video.
+
+- **Para actualizar:** pega/reemplaza los enlaces de TikTok en el arreglo `VIDEOS`.
+- Constante `PROXY` opcional para enrutar las llamadas oEmbed por un Worker de Cloudflare
+  con caché.
+
+### `InstagramFeed.tsx`
+
+Cuadrícula edge-to-edge (6 columnas en desktop / 4 en tablet / 3 en móvil) con las últimas
+publicaciones de **@shein.maturin**, con insignias de video/carrusel y overlay al pasar el
+mouse. Obtiene un JSON limpio desde un **Worker de Cloudflare** (`instagram-feed-worker.js`)
+que llama a la API oficial de Instagram, cachea la respuesta 3 h y auto-refresca el token
+de larga duración por cron — así el token de acceso nunca se expone al navegador.
+
+- **Configuración:** define `FEED_URL` al inicio del archivo con la URL `/feed` del Worker.
+- **Fallback:** si `FEED_URL` está vacío o el Worker falla, usa el arreglo `MANUAL_POSTS`
+  (y oculta la sección por completo si no hay nada que mostrar).
+- **Setup del Worker:** ver el paso a paso en el comentario de cabecera de
+  `instagram-feed-worker.js` (cuenta profesional de Instagram + token de la app de Meta +
+  binding KV llamado `IG` + trigger de cron).
+
+> Nota: como el Worker cachea el feed durante 3 horas, una publicación nueva de Instagram
+> puede tardar hasta ~3 h en aparecer en el sitio.
 
 
 ## Sobre mí
