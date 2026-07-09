@@ -14,10 +14,12 @@ import {
   Menu,
   X,
   Loader2,
+  ShoppingCart,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/admin/pedidos', label: 'Pedidos', icon: Package },
+  { href: '/admin/checkouts', label: 'Carritos abandonados', icon: ShoppingCart },
   { href: '/admin/catalogo', label: 'Catálogo', icon: BookOpen },
   { href: '/admin/suscriptores', label: 'Suscriptores', icon: Mail },
   { href: '/admin/config', label: 'Configuración', icon: Settings },

@@ -80,6 +80,29 @@ CREATE TABLE IF NOT EXISTS suscriptores (
 );
 CREATE INDEX IF NOT EXISTS idx_suscriptores_created_at ON suscriptores(created_at DESC);
 
+-- Tabla de carritos / checkouts abandonados
+-- Clientes que llegaron al checkout y dejaron sus datos de contacto pero NO
+-- confirmaron el pedido. Sirve para enviarles recordatorios u ofertas.
+CREATE TABLE IF NOT EXISTS checkouts_abandonados (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  cliente_nombre TEXT,
+  cliente_telefono TEXT,
+  cliente_email TEXT,
+  cliente_estado TEXT,
+  items JSONB NOT NULL DEFAULT '[]',
+  subtotal NUMERIC(10, 2) DEFAULT 0,
+  total NUMERIC(10, 2) DEFAULT 0,
+  recuperado BOOLEAN DEFAULT false,
+  recuperado_en TIMESTAMPTZ,
+  pedido_codigo TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_checkouts_abandonados_updated_at ON checkouts_abandonados(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_checkouts_abandonados_recuperado ON checkouts_abandonados(recuperado);
+CREATE INDEX IF NOT EXISTS idx_checkouts_abandonados_telefono ON checkouts_abandonados(cliente_telefono);
+
 -- Tabla de cupones de descuento (1 por suscriptor, uso único)
 CREATE TABLE IF NOT EXISTS cupones (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -169,6 +192,11 @@ ALTER TABLE suscriptores ENABLE ROW LEVEL SECURITY;
 -- Habilitar RLS en cupones (validación y canje solo vía API con service role)
 ALTER TABLE cupones ENABLE ROW LEVEL SECURITY;
 -- Sin políticas públicas: se opera desde la API con service_role_key
+
+-- Habilitar RLS en checkouts abandonados (PII: nombre, teléfono, email)
+ALTER TABLE checkouts_abandonados ENABLE ROW LEVEL SECURITY;
+-- Sin políticas públicas: captura (POST /api/checkouts-abandonados) y lectura
+-- (panel admin) se hacen desde la API con service_role_key
 
 -- RLS en perfiles: cada usuario solo ve y edita su propio perfil
 ALTER TABLE perfiles ENABLE ROW LEVEL SECURITY;

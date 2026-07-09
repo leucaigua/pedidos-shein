@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       codigo_cupon,
       user_id,
       cliente_email,
+      checkout_session_id,
     } = body;
 
     if (!cliente_nombre || !cliente_telefono || !items?.length) {
@@ -134,6 +135,18 @@ export async function POST(req: NextRequest) {
         .update({ usado: true, usado_en: new Date().toISOString(), pedido_codigo: codigo })
         .eq('codigo', cuponValido.codigo)
         .eq('usado', false);
+    }
+
+    // Marcar el checkout abandonado como recuperado (terminó en un pedido).
+    if (checkout_session_id) {
+      await supabase
+        .from('checkouts_abandonados')
+        .update({
+          recuperado: true,
+          recuperado_en: new Date().toISOString(),
+          pedido_codigo: codigo,
+        })
+        .eq('session_id', checkout_session_id);
     }
 
     // Alerta de nuevo pedido por Telegram (no bloquea ni afecta la respuesta)

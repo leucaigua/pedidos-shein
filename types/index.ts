@@ -78,6 +78,23 @@ export interface Pedido {
   archivado_en?: string | null;
 }
 
+export interface CheckoutAbandonado {
+  id: string;
+  session_id: string;
+  created_at: string;
+  updated_at: string;
+  cliente_nombre: string | null;
+  cliente_telefono: string | null;
+  cliente_email: string | null;
+  cliente_estado: string | null;
+  items: ItemCarrito[];
+  subtotal: number;
+  total: number;
+  recuperado: boolean;
+  recuperado_en: string | null;
+  pedido_codigo: string | null;
+}
+
 export interface Perfil {
   id: string;
   nombre: string | null;

@@ -26,6 +26,8 @@ on the customer's behalf and deliver them in Venezuela.
 - 📦 **Catalog** of featured products
 - 👤 **User accounts** and order tracking ("My orders")
 - 📨 **Newsletter** and subscriber capture
+- 🛒 **Abandoned checkout recovery** — captures the contact of customers who reach
+  checkout but don't confirm, with one-tap WhatsApp reminders
 - 🔐 **Admin panel** to manage orders, quotes, catalog, subscribers and settings
 - 📱 Personalized support via **WhatsApp**
 - 🎬 **Self-hosted social feeds** — custom TikTok and Instagram sections on the home page
@@ -77,6 +79,34 @@ access token is never exposed to the browser.
 > Note: because the Worker caches the feed for 3 hours, a brand-new Instagram post can take
 > up to ~3 h to appear on the site.
 
+## Abandoned checkouts
+
+The admin panel has an **Abandoned checkouts** section (`/admin/checkouts`), inspired by
+Shopify, to recover customers who reach checkout but never confirm the order.
+
+**How it's captured:** on the checkout page, as soon as the customer enters a WhatsApp
+number (or is logged in with an email) and has items in the cart, their contact and cart
+are saved (debounced) against a persistent browser `session_id`. If they later confirm the
+order, that record is marked **Recovered** and linked to the order code.
+
+**In the admin:** two tabs — **No recuperados** (not recovered) / **Recuperados**
+(recovered) — plus search by name, phone or email. Each row shows contact, item count,
+total and time since last activity, with:
+
+- a **Recordar** button that opens WhatsApp (`wa.me/<phone>`) with a pre-filled reminder
+  ("your cart is about to expire — want me to help you finish it?"), tying into the cart's
+  24 h TTL,
+- a copyable email (for email/Klaviyo campaigns), and delete.
+
+**Security:** the `checkouts_abandonados` table holds PII, so it follows the same posture
+as `pedidos` — **RLS enabled with no public policies**. All reads/writes go through the
+server API with the `service_role_key`: public capture via `POST /api/checkouts-abandonados`
+(rate-limited, totals recalculated server-side) and the admin views via
+`/api/admin/checkouts-abandonados` (admin role only).
+
+- **Setup:** run `supabase-migration-checkouts.sql` in the Supabase SQL Editor (also
+  included in `supabase-schema.sql`) to create the table before using the feature.
+
 ## About me
 
 Hi 👋 I'm **Leu Caigua**, developer and creator of this platform. I built Pedidos SHEIN
@@ -119,6 +149,8 @@ Nosotros compramos los productos por el cliente y se los entregamos en Venezuela
 - 📦 **Catálogo** de productos destacados
 - 👤 **Cuentas de usuario** y seguimiento de pedidos ("Mis pedidos")
 - 📨 **Newsletter** y captación de suscriptores
+- 🛒 **Recuperación de carritos abandonados** — capta el contacto de clientes que llegan
+  al checkout pero no confirman, con recordatorios por WhatsApp en un toque
 - 🔐 **Panel de administración** para gestionar pedidos, cotizaciones, catálogo,
   suscriptores y configuración
 - 📱 Atención personalizada por **WhatsApp**
@@ -173,6 +205,35 @@ de larga duración por cron — así el token de acceso nunca se expone al naveg
 
 > Nota: como el Worker cachea el feed durante 3 horas, una publicación nueva de Instagram
 > puede tardar hasta ~3 h en aparecer en el sitio.
+
+
+## Carritos abandonados
+
+El panel admin tiene una sección de **Carritos abandonados** (`/admin/checkouts`), inspirada
+en Shopify, para recuperar a los clientes que llegan al checkout pero no confirman el pedido.
+
+**Cómo se captura:** en el checkout, en cuanto el cliente escribe su WhatsApp (o está
+logueado con email) y tiene artículos en el carrito, se guarda su contacto y su carrito (con
+debounce) asociados a un `session_id` persistente del navegador. Si luego confirma el pedido,
+ese registro se marca como **Recuperado** y se vincula al código del pedido.
+
+**En el admin:** dos pestañas — **No recuperados** / **Recuperados** — más búsqueda por
+nombre, teléfono o email. Cada fila muestra el contacto, nº de artículos, total y el tiempo
+desde la última actividad, con:
+
+- un botón **Recordar** que abre WhatsApp (`wa.me/<teléfono>`) con un recordatorio prellenado
+  ("tu carrito está por expirar, ¿te ayudo a completarlo?"), que conecta con el TTL de 24 h
+  del carrito,
+- el email copiable (para campañas de correo/Klaviyo) y eliminar.
+
+**Seguridad:** la tabla `checkouts_abandonados` contiene PII, así que sigue la misma postura
+que `pedidos` — **RLS activado sin políticas públicas**. Toda lectura/escritura pasa por la
+API del servidor con la `service_role_key`: captura pública vía `POST /api/checkouts-abandonados`
+(con rate-limit y montos recalculados en el servidor) y las vistas del panel vía
+`/api/admin/checkouts-abandonados` (solo rol admin).
+
+- **Setup:** ejecuta `supabase-migration-checkouts.sql` en el SQL Editor de Supabase (también
+  incluido en `supabase-schema.sql`) para crear la tabla antes de usar la función.
 
 
 ## Sobre mí

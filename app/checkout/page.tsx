@@ -35,6 +35,20 @@ const CONFIG_DEFAULT: ConfigApp = {
 
 type EtapaCheckout = 'formulario' | 'confirmado';
 
+// Identificador persistente del navegador para asociar un checkout abandonado
+// con el pedido que (quizá) lo recupere.
+const CHECKOUT_SESSION_KEY = 'pedidos-shein-checkout-session';
+
+function getCheckoutSessionId(): string {
+  if (typeof window === 'undefined') return '';
+  let id = localStorage.getItem(CHECKOUT_SESSION_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(CHECKOUT_SESSION_KEY, id);
+  }
+  return id;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCart();
@@ -88,6 +102,31 @@ export default function CheckoutPage() {
       router.push('/carrito');
     }
   }, [items, etapa, router]);
+
+  // Captura de carrito abandonado: guarda el contacto (WhatsApp/email) mientras
+  // el cliente llena el formulario, para poder recordarle si no confirma.
+  const emailContacto = (perfil?.email ?? user?.email ?? '').toLowerCase();
+  useEffect(() => {
+    if (etapa !== 'formulario' || items.length === 0) return;
+    const telDigits = form.telefono.replace(/\D/g, '');
+    if (telDigits.length < 7 && !emailContacto) return;
+
+    const t = setTimeout(() => {
+      fetch('/api/checkouts-abandonados', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: getCheckoutSessionId(),
+          cliente_nombre: form.nombre,
+          cliente_telefono: form.telefono,
+          cliente_email: emailContacto || null,
+          cliente_estado: form.estado_vzla,
+          items,
+        }),
+      }).catch(() => {});
+    }, 900);
+    return () => clearTimeout(t);
+  }, [form.telefono, form.nombre, form.estado_vzla, emailContacto, items, etapa]);
 
   const desglose = calcularDesgloseCarrito(
     items,
@@ -169,6 +208,7 @@ export default function CheckoutPage() {
           items,
           user_id: user?.id ?? null,
           cliente_email: (perfil?.email ?? user?.email ?? '').toLowerCase() || null,
+          checkout_session_id: getCheckoutSessionId(),
         }),
       });
       const data = await res.json();
