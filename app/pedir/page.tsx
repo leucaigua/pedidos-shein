@@ -511,7 +511,7 @@ function PedirContent() {
                   <p className="text-xs text-gray-300 leading-relaxed">
                     El <span className="text-white font-semibold">flete se comparte</span> entre todos tus
                     artículos, por eso el total puede ser menor que la suma de los envíos estimados de cada item.
-                    Flete mínimo $16.20 · $16.20 por cada ½ kg.
+                    Flete mínimo $12.90 · $12.90 por cada ½ kg.
                   </p>
                 </div>
               </div>

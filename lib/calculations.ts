@@ -1,7 +1,7 @@
 import type { DesglosePrecio, ItemCarrito } from '@/types';
 
-const TARIFA_POR_UNIDAD = 16.20;   // USD por cada ½ kg o fracción
-const TARIFA_MINIMA     = 16.20;   // flete mínimo
+const TARIFA_POR_UNIDAD = 12.90;   // USD por cada ½ kg o fracción
+const TARIFA_MINIMA     = 12.90;   // flete mínimo
 
 // Esquema de pago: 60% para procesar el pedido, 40% al retirar
 export const ABONO_PCT = 0.6;
@@ -18,7 +18,7 @@ export function calcularRestante(total: number): number {
 }
 
 /**
- * Flete = MAX($16.20, ceil(peso ÷ 0.5) × $16.20)
+ * Flete = MAX($12.90, ceil(peso ÷ 0.5) × $12.90)
  */
 export function calcularEnvioAereo(pesoKg: number): number {
   const unidades = Math.ceil(pesoKg / 0.5);
