@@ -11,7 +11,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#1A1A1A] text-white mt-auto">
-      <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
         {/* Brand */}
         <div>
           <div className="flex items-center gap-2.5 mb-3">
@@ -62,12 +62,27 @@ export default function Footer() {
           </ul>
         </div>
 
+        {/* Legal */}
+        <div>
+          <p className="font-semibold mb-3 text-gray-300 text-sm uppercase tracking-wide">Legal</p>
+          <ul className="space-y-2 text-sm text-gray-400">
+            <li><Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link></li>
+            <li><Link href="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
+            <li><Link href="/envios-devoluciones" className="hover:text-white transition-colors">Envíos y Devoluciones</Link></li>
+            <li><Link href="/cookies" className="hover:text-white transition-colors">Política de Cookies</Link></li>
+          </ul>
+        </div>
+
         {/* Newsletter */}
         <NewsletterForm />
       </div>
 
-      <div className="border-t border-white/10 py-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} Pedidos SHEIN Venezuela. Servicio de compras por encargo.
+      <div className="border-t border-white/10 py-5 px-4 text-center text-xs text-gray-500 space-y-1.5">
+        <p>© {new Date().getFullYear()} Pedidos SHEIN Venezuela. Servicio de compras por encargo.</p>
+        <p className="max-w-2xl mx-auto text-gray-600">
+          No estamos afiliados ni respaldados por SHEIN. «SHEIN» es una marca registrada de su
+          titular; su uso es solo para identificar los productos que puedes encargar.
+        </p>
       </div>
     </footer>
   );

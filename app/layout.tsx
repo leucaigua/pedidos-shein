@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/components/CartContext";
 import { AuthProvider } from "@/components/AuthContext";
 import { CatalogoProvider } from "@/components/CatalogoContext";
+import CookieConsent from "@/components/CookieConsent";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "http://localhost:3000";
@@ -44,6 +45,19 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full antialiased">
       <head>
+        {/* Consent Mode v2 — por defecto denegado hasta que el usuario acepte.
+            Debe ejecutarse ANTES de GTM/gtag. */}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'denied'
+});`}
+        </Script>
+        {/* End Consent Mode default */}
         {/* Google Tag Manager */}
         <Script id="gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -83,6 +97,7 @@ gtag('config', 'G-6MQGZ8M9VV');`}
             <CartProvider>{children}</CartProvider>
           </CatalogoProvider>
         </AuthProvider>
+        <CookieConsent />
       </body>
     </html>
   );

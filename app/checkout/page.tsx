@@ -543,7 +543,11 @@ export default function CheckoutPage() {
           </button>
 
           <p className="text-xs text-gray-400 text-center">
-            Al confirmar, aceptas nuestros términos de servicio. El pago se realiza por transferencia directa.
+            Al confirmar, aceptas nuestros{' '}
+            <a href="/terminos" className="underline hover:text-gray-600">Términos y Condiciones</a>,{' '}
+            la <a href="/privacidad" className="underline hover:text-gray-600">Política de Privacidad</a> y la{' '}
+            <a href="/envios-devoluciones" className="underline hover:text-gray-600">Política de Envíos y Devoluciones</a>.
+            El pago se realiza por transferencia directa.
           </p>
         </div>
       </main>
