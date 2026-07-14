@@ -23,7 +23,8 @@ on the customer's behalf and deliver them in Venezuela.
 - 🧮 **Final price calculation** with currency conversion and weight-based air shipping
 - 🛒 **Cart and checkout** with coupon validation
 - 💳 **Multiple payment methods**: Pago Móvil (Bs), Zelle, Binance Pay and USD cash
-- 📦 **Catalog** of featured products
+- 🏬 **Dropshipping catalog** — a ready-to-buy store fed from the **AliExpress official
+  API** (or manually), with resale pricing, product pages and availability sync
 - 👤 **User accounts** and order tracking ("My orders")
 - 📨 **Newsletter** and subscriber capture
 - 🛒 **Abandoned checkout recovery** — captures the contact of customers who reach
@@ -41,10 +42,37 @@ on the customer's behalf and deliver them in Venezuela.
 | Styling | Tailwind CSS 4 |
 | Database / Auth | [Supabase](https://supabase.com) (Postgres + Auth) |
 | AI / Extraction | [Anthropic SDK](https://www.anthropic.com) + Cheerio (scraping) |
+| Catalog source | AliExpress Open Platform / Dropshipping API (HMAC-signed) |
 | HTTP | Axios |
 | Icons | Lucide React |
 | Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
 | Node | ≥ 20.9.0 |
+
+## Dropshipping catalog
+
+Beyond the "buy from SHEIN by screenshot" flow, the app now includes a **ready-to-buy
+catalog** (`/catalogo`, product pages at `/catalogo/[slug]`) that works as a resale store.
+Products are fed into the `catalogo` table from an interchangeable **provider**, selected
+with the `CATALOGO_PROVIDER` env var:
+
+- **`aliexpress`** — the official AliExpress Open Platform / Dropshipping API. Requests are
+  HMAC-signed server-side; the admin can **search** and **import** products, and price /
+  availability are **synced** and **re-verified at checkout**.
+- **`manual`** — products are curated by hand, no external credentials required.
+
+**Resale pricing (server-only):** the customer never sets prices. The internal source price
+(`precio_base_usd`) is never sent to the browser — the public price is computed on the server
+as `precio_usd = round(precio_base_usd × (1 + catalogo_markup_pct/100))`, where the markup
+(default **20%**) is editable in `/admin/config`.
+
+**Admin flow (`/admin/catalogo`):** authorize AliExpress via OAuth (tokens stored in
+`config`), search by keyword, and import products (with variants, images, weight and
+availability). Server endpoints: `POST /api/catalogo/buscar`, `/importar`, `/sincronizar`,
+`/verificar`, and `/aliexpress-auth`.
+
+- **Setup:** run `supabase-migration-catalogo-v2.sql` in the Supabase SQL Editor (additive —
+  it evolves the existing `catalogo` table), then set the `ALIEXPRESS_*` env vars if using
+  the AliExpress provider.
 
 ## Social feeds
 
@@ -146,7 +174,9 @@ Nosotros compramos los productos por el cliente y se los entregamos en Venezuela
 - 🧮 **Cálculo de precio final** con conversión y costo de envío aéreo por peso
 - 🛒 **Carrito y checkout** con validación de cupones
 - 💳 **Múltiples métodos de pago**: Pago Móvil (Bs), Zelle, Binance Pay y efectivo USD
-- 📦 **Catálogo** de productos destacados
+- 🏬 **Catálogo dropshipping** — tienda lista para comprar, alimentada desde la **API
+  oficial de AliExpress** (o de forma manual), con precio de reventa, fichas de producto y
+  sincronización de disponibilidad
 - 👤 **Cuentas de usuario** y seguimiento de pedidos ("Mis pedidos")
 - 📨 **Newsletter** y captación de suscriptores
 - 🛒 **Recuperación de carritos abandonados** — capta el contacto de clientes que llegan
@@ -165,11 +195,38 @@ Nosotros compramos los productos por el cliente y se los entregamos en Venezuela
 | Estilos | Tailwind CSS 4 |
 | Base de datos / Auth | [Supabase](https://supabase.com) (Postgres + Auth) |
 | IA / Extracción | [Anthropic SDK](https://www.anthropic.com) + Cheerio (scraping) |
+| Fuente de catálogo | AliExpress Open Platform / Dropshipping API (firma HMAC) |
 | HTTP | Axios |
 | Iconos | Lucide React |
 | Hosting | [Netlify](https://www.netlify.com) (`@netlify/plugin-nextjs`) |
 | Node | ≥ 20.9.0 |
 
+
+## Catálogo dropshipping
+
+Además del flujo de "comprar de SHEIN por captura", la app ahora incluye un **catálogo
+listo para comprar** (`/catalogo`, fichas en `/catalogo/[slug]`) que funciona como tienda de
+reventa. Los productos se cargan en la tabla `catalogo` desde un **proveedor** intercambiable,
+seleccionado con la variable de entorno `CATALOGO_PROVIDER`:
+
+- **`aliexpress`** — la API oficial de AliExpress (Open Platform / Dropshipping). Las
+  peticiones se firman con HMAC en el servidor; el admin puede **buscar** e **importar**
+  productos, y el precio / disponibilidad se **sincronizan** y **re-verifican en el checkout**.
+- **`manual`** — productos curados a mano, sin credenciales externas.
+
+**Precio de reventa (solo servidor):** el cliente nunca fija precios. El precio interno de la
+fuente (`precio_base_usd`) nunca se envía al navegador — el precio público se calcula en el
+servidor como `precio_usd = round(precio_base_usd × (1 + catalogo_markup_pct/100))`, donde el
+markup (por defecto **20%**) es editable en `/admin/config`.
+
+**Flujo del admin (`/admin/catalogo`):** autorizar AliExpress vía OAuth (tokens guardados en
+`config`), buscar por palabra clave e importar productos (con variantes, imágenes, peso y
+disponibilidad). Endpoints del servidor: `POST /api/catalogo/buscar`, `/importar`,
+`/sincronizar`, `/verificar` y `/aliexpress-auth`.
+
+- **Setup:** ejecuta `supabase-migration-catalogo-v2.sql` en el SQL Editor de Supabase
+  (es aditiva — evoluciona la tabla `catalogo` existente) y define las variables `ALIEXPRESS_*`
+  si usas el proveedor de AliExpress.
 
 ## Feeds sociales
 

@@ -8,6 +8,7 @@ const DEFAULT_CONFIG: ConfigApp = {
   whatsapp: '',
   mensaje_checkout:
     'Gracias por tu pedido. Nos comunicaremos contigo en menos de 24 horas.',
+  catalogo_markup_pct: 20,
   metodos_pago: [
     {
       id: 'binance',
@@ -66,6 +67,9 @@ export async function getConfig(): Promise<ConfigApp> {
       tasa_bsd: Number(map['tasa_bsd'] ?? DEFAULT_CONFIG.tasa_bsd),
       whatsapp: map['whatsapp'] ?? '',
       mensaje_checkout: map['mensaje_checkout'] ?? DEFAULT_CONFIG.mensaje_checkout,
+      catalogo_markup_pct: Number(
+        map['catalogo_markup_pct'] ?? DEFAULT_CONFIG.catalogo_markup_pct
+      ),
       metodos_pago,
     };
   } catch {

@@ -11,6 +11,7 @@ const CONFIG_DEFAULT: ConfigApp = {
   tasa_bsd: 40,
   whatsapp: '',
   mensaje_checkout: 'Gracias por tu pedido. Nos comunicaremos contigo en menos de 24 horas.',
+  catalogo_markup_pct: 20,
   metodos_pago: [],
 };
 
@@ -142,7 +143,22 @@ export default function AdminConfigPage() {
                 onChange={(e) => setConfig((c) => ({ ...c, comision_pct: Number(e.target.value) }))}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A]"
               />
-              <p className="text-xs text-gray-400 mt-1">Porcentaje adicional sobre el precio del producto.</p>
+              <p className="text-xs text-gray-400 mt-1">Se aplica a &quot;pedir por enlace&quot;. No aplica al catálogo.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Markup del catálogo (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="200"
+                step="1"
+                value={config.catalogo_markup_pct}
+                onChange={(e) => setConfig((c) => ({ ...c, catalogo_markup_pct: Number(e.target.value) }))}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A]"
+              />
+              <p className="text-xs text-gray-400 mt-1">Margen de reventa sobre el precio de AliExpress (ej. 20%).</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">

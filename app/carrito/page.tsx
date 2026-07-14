@@ -107,7 +107,7 @@ export default function CarritoPage() {
                       rel="noopener noreferrer"
                       className="text-xs text-[#1A1A1A] hover:underline"
                     >
-                      Ver en SHEIN →
+                      Ver producto original →
                     </a>
                   )}
                 </div>

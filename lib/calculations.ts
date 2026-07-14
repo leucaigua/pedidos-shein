@@ -63,6 +63,8 @@ export function calcularDesgloseCarrito(
   const peso     = items.reduce((acc: number, i: ItemCarrito) => acc + i.peso_kg   * i.cantidad, 0);
   const envio     = calcularEnvioAereo(peso);
   const proteccion = conSeguro ? calcularSeguro(subtotal) : 0;
+  // La comisión del 10% se aplica a TODO el subtotal, incluidos los artículos
+  // del catálogo (además del +20% de reventa ya incluido en su precio).
   const comision  = subtotal * (comisionPct / 100);
   const totalUSD  = subtotal + envio + proteccion + comision;
   return {

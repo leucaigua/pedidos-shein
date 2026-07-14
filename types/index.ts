@@ -26,6 +26,14 @@ export interface ItemCarrito {
   color: string;
   cantidad: number;
   peso_kg: number;
+  // --- Catálogo (dropshipping): opcionales para no romper items existentes ---
+  catalogo_id?: string;        // id del producto en la tabla `catalogo`
+  external_id?: string;        // id del producto en la fuente (AliExpress)
+  source?: CatalogoSource;     // origen del producto
+  variante?: string;           // etiqueta de la variante elegida (color/talla/modelo)
+  variante_id?: string;        // id de la variante en la fuente
+  // Snapshot del precio de reventa mostrado al agregar (SHEIN/AliExpress cambian precios).
+  precio_snapshot?: number;
 }
 
 export interface DesglosePrecio {
@@ -104,16 +112,53 @@ export interface Perfil {
   created_at: string;
 }
 
+export type CatalogoSource = 'aliexpress' | 'manual' | 'shein';
+
+export type Disponibilidad = 'disponible' | 'pocas' | 'agotado' | 'desconocido';
+
+export interface VarianteCatalogo {
+  id: string;
+  sku?: string;
+  color?: string;
+  talla?: string;
+  modelo?: string;
+  imagen?: string;
+  // precio_base_usd es INTERNO (no se expone al frontend público).
+  precio_base_usd?: number;
+  peso_kg?: number;
+  disponibilidad?: Disponibilidad;
+}
+
 export interface ProductoCatalogo {
   id: string;
   nombre: string;
   imagen_url: string;
-  precio_usd: number;
+  precio_usd: number;              // precio de reventa (mostrado al cliente)
+  precio_anterior_usd?: number;    // precio tachado si hay descuento
   categoria: string;
+  subcategoria?: string;
   peso_estimado_kg: number;
-  url_shein: string;
+  url_shein: string;               // legado; equivalente a source_url
   activo: boolean;
   created_at: string;
+  // --- Campos del catálogo de dropshipping ---
+  external_id?: string;
+  source?: CatalogoSource;
+  source_url?: string;
+  slug?: string;
+  descripcion?: string;
+  imagenes?: string[];
+  destacado?: boolean;
+  disponibilidad?: Disponibilidad;
+  variantes?: VarianteCatalogo[];
+  last_synced_at?: string | null;
+  updated_at?: string;
+}
+
+// Fila cruda de la tabla `catalogo` (incluye el precio base INTERNO).
+// Nunca se envía tal cual al frontend público; ver toProductoPublico().
+export interface CatalogoRow extends ProductoCatalogo {
+  precio_base_usd?: number;
 }
 
 export interface ConfigApp {
@@ -123,6 +168,9 @@ export interface ConfigApp {
   whatsapp: string;
   mensaje_checkout: string;
   metodos_pago: MetodoPago[];
+  // Markup de reventa del catálogo (%). El 20% ya es el margen: en artículos de
+  // catálogo NO se apila la comisión del flujo por enlace.
+  catalogo_markup_pct: number;
 }
 
 export interface MetodoPago {

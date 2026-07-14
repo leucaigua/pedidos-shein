@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest) {
 
   const supabase = getSupabaseAdmin();
   const body = await req.json();
-  const allowed = ['comision_pct', 'proteccion_activa', 'tasa_bsd', 'whatsapp', 'mensaje_checkout', 'metodos_pago'];
+  const allowed = ['comision_pct', 'catalogo_markup_pct', 'proteccion_activa', 'tasa_bsd', 'whatsapp', 'mensaje_checkout', 'metodos_pago'];
 
   const updates = Object.entries(body)
     .filter(([k]) => allowed.includes(k))

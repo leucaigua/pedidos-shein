@@ -3,7 +3,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TikTokCarousel from '@/components/TikTokCarousel';
 import InstagramFeed from '@/components/InstagramFeed';
-import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star, Sparkles } from 'lucide-react';
+import { Camera, Calculator, CheckCircle, Truck, ShieldCheck, MessageCircle, Star, Sparkles, ShoppingBag, ArrowRight } from 'lucide-react';
 
 const COMO_FUNCIONA = [
   { icon: Camera, paso: '1', titulo: 'Sube tus capturas', desc: 'Toma una captura de cada producto en SHEIN con el precio visible y súbelas — una o varias a la vez. Cada captura es un artículo de tu pedido.' },
@@ -48,17 +48,42 @@ export default function LandingPage() {
             Compra cualquier producto de SHEIN sin tarjeta internacional.
             Nosotros lo compramos por ti y te lo enviamos en días.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link href="/pedir" className="bg-white text-[#1A1A1A] font-bold px-8 py-4 rounded-xl text-base hover:bg-gray-100 transition-colors">
               Hacer mi pedido
-            </Link>
-            <Link href="/catalogo" className="bg-white/10 hover:bg-white/15 text-white font-semibold px-8 py-4 rounded-xl text-base transition-colors border border-white/20">
-              Ver catálogo
             </Link>
           </div>
           <p className="mt-6 text-sm text-gray-500">
             ✓ Sin tarjeta internacional · ✓ Pago en Bs, Zelle y Binance · ✓ Atención por WhatsApp
           </p>
+        </div>
+      </section>
+
+      {/* CTA — catálogo ya disponible */}
+      <section className="bg-[#1A1A1A] px-4 pb-14 -mt-6">
+        <div className="max-w-4xl mx-auto">
+          <Link
+            href="/catalogo"
+            className="group relative flex flex-col sm:flex-row items-center gap-5 overflow-hidden rounded-3xl border border-[#FFD700]/25 bg-gradient-to-br from-[#FFD700]/10 to-[#1A1A1A] p-6 md:p-8 transition-colors hover:border-[#FFD700]/50"
+          >
+            <div className="flex-shrink-0 w-14 h-14 bg-[#FFD700]/15 rounded-2xl flex items-center justify-center">
+              <ShoppingBag className="w-7 h-7 text-[#FFD700]" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <span className="inline-block bg-[#FFD700] text-[#1A1A1A] text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-widest">
+                ¡Nuevo!
+              </span>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-1">
+                Nuestro catálogo ya está disponible
+              </h2>
+              <p className="text-gray-300 text-sm md:text-base">
+                Explora productos listos para pedir y haz tu compra directamente desde aquí.
+              </p>
+            </div>
+            <span className="flex-shrink-0 inline-flex items-center gap-2 bg-[#FFD700] text-[#1A1A1A] font-bold px-6 py-3 rounded-xl transition-transform group-hover:scale-105">
+              Ver catálogo <ArrowRight className="w-4 h-4" />
+            </span>
+          </Link>
         </div>
       </section>
 

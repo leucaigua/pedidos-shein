@@ -26,6 +26,7 @@ const CONFIG_DEFAULT: ConfigApp = {
   tasa_bsd: 40,
   whatsapp: '',
   mensaje_checkout: 'Gracias por tu pedido. Nos comunicaremos contigo en menos de 24 horas.',
+  catalogo_markup_pct: 20,
   metodos_pago: [
     { id: 'binance', nombre: 'Binance Pay (USDT)', activo: true, instrucciones: 'Envía el pago a nuestro ID de Binance Pay.', datos_cuenta: '' },
     { id: 'zelle', nombre: 'Zelle', activo: true, instrucciones: 'Envía el pago por Zelle al correo indicado.', datos_cuenta: '' },
