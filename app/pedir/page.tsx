@@ -58,6 +58,34 @@ function resizeToBase64(file: File, maxWidth = 300): Promise<string> {
   });
 }
 
+// Redimensiona la captura a un JPEG ligero para enviar a la API de análisis.
+// Evita el 400 por tamaño (>6 MB) y por tipo no soportado, ya que las capturas
+// PNG de escritorio/móvil suelen pesar más del límite del endpoint.
+function resizeForApi(file: File, maxWidth = 1400, quality = 0.85): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const blobUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(blobUrl);
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error('No se pudo procesar la imagen'))),
+        'image/jpeg',
+        quality,
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(blobUrl);
+      reject(new Error('No se pudo cargar la imagen'));
+    };
+    img.src = blobUrl;
+  });
+}
+
 function uid() {
   return crypto.randomUUID();
 }
@@ -80,7 +108,8 @@ function PedirContent() {
   async function procesarItem(id: string, file: File) {
     try {
       const fd = new FormData();
-      fd.append('screenshot', file);
+      const jpeg = await resizeForApi(file);
+      fd.append('screenshot', jpeg, 'captura.jpg');
       const res = await fetch('/api/verify-price', { method: 'POST', body: fd });
       const data = await res.json();
 

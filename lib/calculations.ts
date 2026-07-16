@@ -107,6 +107,9 @@ function sufijoAleatorio(longitud: number): string {
   return out;
 }
 
+// Longitud exacta de un código de pedido: "PS-" (3) + "YYYYMMDD" (8) + "-" (1) + sufijo (7) = 19.
+export const LONGITUD_CODIGO_PEDIDO = 19;
+
 export function generarCodigoPedido(): string {
   const fecha = new Date();
   const ymd =

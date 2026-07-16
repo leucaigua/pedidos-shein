@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { estadoLabel, estadoEmoji, estadoColor } from '@/lib/utils';
-import { formatUSD, calcularAbono, calcularRestante } from '@/lib/calculations';
+import { formatUSD, calcularAbono, calcularRestante, LONGITUD_CODIGO_PEDIDO } from '@/lib/calculations';
 import type { EstadoPedido, EstadoPago } from '@/types';
 import { Search, Loader2, Package, AlertCircle, CheckCircle, Truck, ExternalLink } from 'lucide-react';
 
@@ -53,6 +53,10 @@ function MisPedidosContent() {
       setError('Ingresa tu número de orden');
       return;
     }
+    if (c.length !== LONGITUD_CODIGO_PEDIDO) {
+      setError(`El número de orden debe tener ${LONGITUD_CODIGO_PEDIDO} caracteres.`);
+      return;
+    }
     setError('');
     setBuscando(true);
     try {
@@ -70,6 +74,9 @@ function MisPedidosContent() {
       setBuscando(false);
     }
   }
+
+  // El código solo es válido cuando tiene la longitud exacta de un código real.
+  const codigoValido = codigo.trim().length === LONGITUD_CODIGO_PEDIDO;
 
   const pasoActual = pedido
     ? PASOS.findIndex((p) => p.estado === pedido.estado)
@@ -97,16 +104,17 @@ function MisPedidosContent() {
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="PS-20240528-0042"
+              placeholder="PS-20240528-A7K2P9Q"
+              maxLength={LONGITUD_CODIGO_PEDIDO}
               value={codigo}
               onChange={(e) => setCodigo(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === 'Enter' && buscarPedido()}
+              onKeyDown={(e) => e.key === 'Enter' && codigoValido && buscarPedido()}
               className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/30 focus:border-[#1A1A1A] uppercase"
             />
             <button
               onClick={() => buscarPedido()}
-              disabled={buscando}
-              className="bg-[#1A1A1A] text-white px-5 py-3 rounded-xl font-semibold flex items-center gap-2 hover:bg-[#3D3D3D] transition-colors disabled:opacity-60"
+              disabled={buscando || !codigoValido}
+              className="bg-[#1A1A1A] text-white px-5 py-3 rounded-xl font-semibold flex items-center gap-2 hover:bg-[#3D3D3D] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {buscando ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -118,6 +126,11 @@ function MisPedidosContent() {
           {error && (
             <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
               <AlertCircle className="w-4 h-4" /> {error}
+            </p>
+          )}
+          {!error && codigo.trim().length > 0 && !codigoValido && (
+            <p className="text-gray-400 text-xs mt-2">
+              {codigo.trim().length}/{LONGITUD_CODIGO_PEDIDO} caracteres
             </p>
           )}
         </div>
