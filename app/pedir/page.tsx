@@ -111,13 +111,27 @@ function PedirContent() {
       const jpeg = await resizeForApi(file);
       fd.append('screenshot', jpeg, 'captura.jpg');
       const res = await fetch('/api/verify-price', { method: 'POST', body: fd });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      // Los errores del API llegan como `data.error` (no `mensaje`): si no se
+      // leen aquí, un 429/400/500 se muestra como "no se ve el precio" y el
+      // problema real queda oculto.
+      if (!res.ok) {
+        const motivo =
+          res.status === 429
+            ? 'Subiste muchas capturas muy rápido. Espera un momento y pulsa Reintentar.'
+            : data.error || `Error del servidor (${res.status}). Reintenta.`;
+        setItems((prev) => prev.map((it) => it.id === id ? {
+          ...it, estado: 'error', mensajeError: motivo,
+        } : it));
+        return;
+      }
 
       if (!data.ok || !data.encontrado || !data.precio) {
         setItems((prev) => prev.map((it) => it.id === id ? {
           ...it,
           estado: 'error',
-          mensajeError: data.mensaje || 'No se pudo leer el precio. Asegúrate de que el precio sea visible en la captura.',
+          mensajeError: data.mensaje || data.error || 'No se pudo leer el precio. Asegúrate de que el precio sea visible en la captura.',
         } : it));
         return;
       }
@@ -135,11 +149,14 @@ function PedirContent() {
         categoria,
         nombre: nombreCaptura || categoria || 'Producto SHEIN',
       } : it));
-    } catch {
+    } catch (e) {
+      // Distingue "no se pudo leer la imagen" (formatos que el navegador no
+      // decodifica, p. ej. HEIC en Chrome) de una caída de red.
+      const msg = e instanceof Error && e.message.includes('imagen')
+        ? 'No se pudo leer esa imagen. Vuelve a guardarla como JPG o PNG.'
+        : 'Error de conexión. Reintenta.';
       setItems((prev) => prev.map((it) => it.id === id ? {
-        ...it,
-        estado: 'error',
-        mensajeError: 'Error de conexión. Reintenta.',
+        ...it, estado: 'error', mensajeError: msg,
       } : it));
     }
   }
@@ -367,7 +384,7 @@ function PedirContent() {
               type="file"
               accept="image/*"
               multiple
-              className="hidden"
+              className="sr-only"
               onChange={handleScreenshots}
             />
 
