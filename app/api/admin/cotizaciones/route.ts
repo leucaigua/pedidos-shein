@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Los precios, cantidades y pesos deben ser válidos.' }, { status: 400 });
     }
     const db = getSupabaseAdmin();
-    const { data: existente, error: readError } = await db.from('cotizaciones').select('id, archivado').eq('id', body.id).maybeSingle();
+    const { data: existente, error: readError } = await db.from('cotizaciones').select('id, archivado, estado').eq('id', body.id).maybeSingle();
     if (readError) throw readError;
-    if (existente?.archivado) return NextResponse.json({ error: 'La cotización está archivada o no procesada y ya no está en curso.' }, { status: 409 });
+    if (existente?.archivado || existente?.estado === 'no_procesada') return NextResponse.json({ error: 'La cotización está archivada o no procesada y ya no está en curso.' }, { status: 409 });
     const config = await getConfig();
     const d = calcularDesgloseCarrito(body.items, config.comision_pct, config.proteccion_activa);
     const values = { cliente_nombre: nombre, items: body.items, pago_total: body.pago_total === true,
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // El mismo borrador conserva su código incluso ante guardados simultáneos.
     const { error: insertError } = await db.from('cotizaciones').upsert({ id: body.id, codigo: `CS-${fecha}-${randomBytes(4).toString('hex').toUpperCase()}`, ...values }, { onConflict: 'id', ignoreDuplicates: true });
     if (insertError) throw insertError;
-    const { data, error } = await db.from('cotizaciones').update(values).eq('id', body.id).eq('archivado', false).select().maybeSingle();
+    const { data, error } = await db.from('cotizaciones').update(values).eq('id', body.id).eq('archivado', false).neq('estado', 'no_procesada').select().maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: 'La cotización ya no está en curso.' }, { status: 409 });
     return NextResponse.json({ ok: true, cotizacion: data });

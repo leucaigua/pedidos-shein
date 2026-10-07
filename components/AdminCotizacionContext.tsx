@@ -16,6 +16,7 @@ interface QuoteContext {
   guardar: () => Promise<Cotizacion>;
   nueva: () => Promise<void>;
   abrir: (cotizacion: Cotizacion) => Promise<void>;
+  sincronizar: (cotizacion: Cotizacion) => void;
   guardando: boolean;
   error: string;
 }
@@ -38,6 +39,57 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
 
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(draft)); }, [draft]);
 
+  const descartar = useCallback((id: string) => {
+    if (currentId.current !== id) return;
+    // Invalida también los guardados pendientes de la cotización anterior.
+    currentId.current = '';
+    setDraft({ ...EMPTY });
+    clearCart();
+    setPagoTotal(false);
+    setError('');
+  }, [clearCart, setPagoTotal]);
+
+  function sincronizar(cotizacion: Cotizacion) {
+    if (cotizacion.archivado || cotizacion.estado === 'no_procesada') descartar(cotizacion.id);
+  }
+
+  async function consultarActual() {
+    if (!draft.id || !draft.codigo) return null;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+    const res = await fetch(`/api/admin/cotizaciones/${draft.id}`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const message = data.error || 'No se pudo verificar la cotización actual.';
+      setError(message);
+      throw new Error(message);
+    }
+    return data.cotizacion as Cotizacion;
+  }
+
+  // Limpia un borrador guardado que se haya archivado desde otra sesión.
+  useEffect(() => {
+    if (!draft.id || !draft.codigo) return;
+    let active = true;
+    async function verificar() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(`/api/admin/cotizaciones/${draft.id}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (!res.ok) return;
+        const { cotizacion } = await res.json();
+        if (active && (cotizacion.archivado || cotizacion.estado === 'no_procesada')) descartar(draft.id);
+      } catch { /* Un fallo de red no debe borrar el borrador. */ }
+    }
+    verificar();
+    window.addEventListener('focus', verificar);
+    return () => { active = false; window.removeEventListener('focus', verificar); };
+  }, [draft.id, draft.codigo, descartar]);
+
   const guardar = useCallback(async (): Promise<Cotizacion> => {
     if (!draft.clienteNombre.trim() || !items.length) {
       const message = 'Ingresa el nombre del cliente y agrega artículos antes de guardar.';
@@ -46,6 +98,7 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
     }
     const snapshot = { id: draft.id, cliente_nombre: draft.clienteNombre, items, pago_total: pagoTotal };
     const task = async () => {
+      if (snapshot.id !== currentId.current) throw new Error('La cotización ya no está en curso.');
       setGuardando(true);
       setError('');
       try {
@@ -57,21 +110,24 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
           body: JSON.stringify(snapshot),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'No se pudo guardar la cotización.');
+        if (!res.ok) {
+          if (res.status === 409) descartar(snapshot.id);
+          throw new Error(data.error || 'No se pudo guardar la cotización.');
+        }
         const saved: Cotizacion = data.cotizacion;
         window.dispatchEvent(new Event('admin-cotizacion-guardada'));
         if (currentId.current === snapshot.id) setDraft((old) => ({ ...old, codigo: saved.codigo }));
         return saved;
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Error de conexión';
-        setError(message);
+        if (currentId.current === snapshot.id) setError(message);
         throw new Error(message);
       } finally { setGuardando(false); }
     };
     const next = queue.current.catch(() => {}).then(task);
     queue.current = next;
     return next;
-  }, [draft.id, draft.clienteNombre, items, pagoTotal]);
+  }, [draft.id, draft.clienteNombre, items, pagoTotal, descartar]);
 
   // Los cambios de peso/cantidad y modalidad actualizan el mismo registro.
   useEffect(() => {
@@ -89,7 +145,14 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
   }
 
   async function nueva() {
-    if (items.length) await guardar();
+    const actual = await consultarActual();
+    const terminada = actual?.archivado || actual?.estado === 'no_procesada';
+    if (terminada) descartar(draft.id);
+    else if (items.length) {
+      try { await guardar(); }
+      catch (e) { if (currentId.current === draft.id) throw e; }
+    }
+    await queue.current.catch(() => {});
     const fresh = { ...EMPTY, id: crypto.randomUUID() };
     currentId.current = fresh.id;
     setDraft(fresh);
@@ -99,7 +162,12 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
   }
 
   async function abrir(cotizacion: Cotizacion) {
-    if (items.length && draft.id !== cotizacion.id) await guardar();
+    if (cotizacion.archivado || cotizacion.estado === 'no_procesada') throw new Error('Esta cotización ya no está en curso. Cambia su estado antes de editarla.');
+    if (items.length && draft.id !== cotizacion.id) {
+      const actual = await consultarActual();
+      if (actual?.archivado || actual?.estado === 'no_procesada') descartar(draft.id);
+      else await guardar();
+    }
     // Termina cualquier escritura del borrador previo antes de cambiar de cliente.
     await queue.current.catch(() => {});
     currentId.current = cotizacion.id;
@@ -109,7 +177,7 @@ export function AdminCotizacionProvider({ children }: { children: React.ReactNod
     setError('');
   }
 
-  return <Context.Provider value={{ config, clienteNombre: draft.clienteNombre, codigo: draft.codigo, setClienteNombre, guardar, nueva, abrir, guardando, error }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ config, clienteNombre: draft.clienteNombre, codigo: draft.codigo, setClienteNombre, guardar, nueva, abrir, sincronizar, guardando, error }}>{children}</Context.Provider>;
 }
 
 export function useAdminCotizacion() {

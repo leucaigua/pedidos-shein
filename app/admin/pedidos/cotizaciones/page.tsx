@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Archive, ArchiveRestore, Eye, Loader2, RefreshCw, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatUSD } from '@/lib/calculations';
+import { useAdminCotizacion } from '@/components/AdminCotizacionContext';
 import { NuevaCotizacionButton } from '@/components/AdminCotizacionControls';
 import type { Cotizacion, EstadoCotizacion } from '@/types';
 
@@ -15,6 +16,7 @@ const ESTADOS: { value: EstadoCotizacion; label: string }[] = [
 ];
 
 export default function CotizacionesPage() {
+  const { sincronizar } = useAdminCotizacion();
   const [rows, setRows] = useState<Cotizacion[]>([]);
   const [archivados, setArchivados] = useState(false);
   const [busqueda, setBusqueda] = useState('');
@@ -54,6 +56,7 @@ export default function CotizacionesPage() {
       const res = await fetch(`/api/admin/cotizaciones/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      sincronizar(data.cotizacion);
       await cargar();
     } catch (e) { setError(e instanceof Error ? e.message : 'Error de conexión'); }
     finally { setAccion(null); }
