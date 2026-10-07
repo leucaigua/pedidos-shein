@@ -7,6 +7,7 @@ import { GuardarCotizacion, NombreClienteCotizacion } from '@/components/AdminCo
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
+import { imprimirCotizacion } from '@/lib/printCotizacion';
 import CarritoPrintable from '@/components/CarritoPrintable';
 import { calcularDesgloseCarrito, calcularAbono, calcularRestante, formatUSD } from '@/lib/calculations';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles, Clock, Printer } from 'lucide-react';
@@ -21,8 +22,8 @@ export default function CarritoView({ admin = false }: { admin?: boolean }) {
   const restante = pagarCompleto ? 0 : calcularRestante(desglose.total);
 
   // Abre el diálogo de impresión del navegador; desde ahí se guarda como PDF.
-  function descargarPDF() {
-    window.print();
+  async function descargarPDF() {
+    await imprimirCotizacion();
   }
 
   if (totalItems === 0) {

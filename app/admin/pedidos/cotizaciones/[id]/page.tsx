@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Pencil, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAdminCotizacion } from '@/components/AdminCotizacionContext';
+import { imprimirCotizacion } from '@/lib/printCotizacion';
 import CarritoPrintable from '@/components/CarritoPrintable';
 import { calcularAbono, calcularRestante, formatUSD } from '@/lib/calculations';
 import type { Cotizacion, DesglosePrecio } from '@/types';
@@ -43,7 +44,7 @@ export default function CotizacionPage({ params }: { params: Promise<{ id: strin
       <Link href="/admin/pedidos/cotizaciones" className="text-sm text-gray-500 hover:underline">← Cotizaciones</Link>
       <div className="flex flex-wrap items-center justify-between gap-4 my-6">
         <div><h1 className="text-2xl font-bold">{quote.codigo}</h1><p className="text-gray-500 mt-1">{quote.cliente_nombre} · {labels[quote.estado]}{quote.archivado ? ' · Archivada' : ''}</p></div>
-        <div className="flex gap-3"><button onClick={() => window.print()} className="border rounded-xl px-4 py-2 text-sm">Descargar PDF</button>{!quote.archivado && quote.estado !== 'no_procesada' && <button disabled={abriendo} onClick={async () => {
+        <div className="flex gap-3"><button onClick={imprimirCotizacion} className="border rounded-xl px-4 py-2 text-sm">Descargar PDF</button>{!quote.archivado && quote.estado !== 'no_procesada' && <button disabled={abriendo} onClick={async () => {
           setAbriendo(true);
           try { await abrir(quote); router.push('/admin/pedidos/nuevo/carrito'); } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo abrir'); } finally { setAbriendo(false); }
         }} className="bg-[#1A1A1A] text-white rounded-xl px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"><Pencil className="w-4 h-4" />Editar cotización</button>}</div>

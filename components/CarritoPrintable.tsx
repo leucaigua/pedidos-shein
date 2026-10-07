@@ -51,7 +51,7 @@ export default function CarritoPrintable({ items, desglose, abono, restante, tot
       {/* Encabezado */}
       <header className="flex items-start justify-between border-b-2 border-[#1A1A1A] pb-4 mb-6">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Pedidos SHEIN" width={44} height={44} className="rounded" />
+          <Image src="/logo.png" alt="Pedidos SHEIN" width={44} height={44} loading="eager" unoptimized className="block h-11 w-11 shrink-0 object-contain" />
           <div>
             <p className="font-display font-bold text-xl leading-tight">Pedidos SHEIN</p>
             <p className="text-xs text-gray-500">Venezuela · Compras por encargo</p>
@@ -71,6 +71,7 @@ export default function CarritoPrintable({ items, desglose, abono, restante, tot
         <thead>
           <tr className="border-b border-gray-300 text-left text-[10px] uppercase tracking-wide text-gray-500">
             <th className="py-2 pr-2 font-semibold w-8">#</th>
+            <th className="py-2 pr-2 font-semibold w-20">Imagen</th>
             <th className="py-2 pr-2 font-semibold">Producto</th>
             <th className="py-2 px-2 font-semibold text-center w-12">Cant.</th>
             <th className="py-2 px-2 font-semibold text-right w-20">P. unit.</th>
@@ -81,6 +82,19 @@ export default function CarritoPrintable({ items, desglose, abono, restante, tot
           {items.map((item, i) => (
             <tr key={item.id} className="border-b border-gray-200 evitar-corte align-top">
               <td className="py-2.5 pr-2 text-gray-400">{i + 1}</td>
+              <td className="py-2.5 pr-2">
+                {item.imagen ? (
+                  <Image
+                    src={item.imagen}
+                    alt={item.nombre}
+                    width={64}
+                    height={64}
+                    loading="eager"
+                    unoptimized
+                    className="block h-16 w-16 rounded object-contain"
+                  />
+                ) : <span className="text-gray-400">Sin imagen</span>}
+              </td>
               <td className="py-2.5 pr-2">
                 <p className="font-medium leading-snug">{item.nombre}</p>
                 <p className="text-[10px] text-gray-500 mt-0.5">
