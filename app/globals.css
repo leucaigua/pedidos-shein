@@ -51,3 +51,45 @@ html {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Impresión / "Descargar PDF"
+   El carrito se imprime con el diálogo nativo del navegador (Guardar como PDF).
+   `.solo-print` es el documento imprimible; `.no-print` es todo lo que sobra
+   en papel (navbar, footer, botones, controles de cantidad).
+--------------------------------------------------------------------------- */
+.solo-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Conserva los fondos sólidos del documento (bloque del abono 60%). */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .solo-print {
+    display: block !important;
+  }
+
+  /* Evita que una fila o un bloque se parta entre dos páginas. */
+  .evitar-corte {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

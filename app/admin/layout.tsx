@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import AlertaNuevosPedidos from './AlertaNuevosPedidos';
 import {
   Package,
+  FileText,
   BookOpen,
   Settings,
   Mail,
@@ -19,6 +20,7 @@ import {
 
 const NAV_ITEMS = [
   { href: '/admin/pedidos', label: 'Pedidos', icon: Package },
+  { href: '/admin/pedidos/cotizaciones', label: 'Cotizaciones', icon: FileText },
   { href: '/admin/checkouts', label: 'Carritos abandonados', icon: ShoppingCart },
   { href: '/admin/catalogo', label: 'Catálogo', icon: BookOpen },
   { href: '/admin/suscriptores', label: 'Suscriptores', icon: Mail },
@@ -65,9 +67,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex bg-[#FAFAFA]">
+    <div className="min-h-screen flex bg-[#FAFAFA] print:block print:min-h-0">
       {/* Sidebar desktop */}
-      <aside className="hidden md:flex flex-col w-60 bg-[#1A1A1A] text-white fixed inset-y-0 left-0 z-30">
+      <aside className="no-print hidden md:flex flex-col w-60 bg-[#1A1A1A] text-white fixed inset-y-0 left-0 z-30">
         <div className="p-5 border-b border-white/10">
           <p className="text-xl font-display font-bold">
             Pedidos<span className="text-[#888888]">SHEIN</span>
@@ -80,7 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={href}
               href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                pathname.startsWith(href)
+                (href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
                   ? 'bg-white/10 text-white'
                   : 'text-gray-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -102,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-[#1A1A1A] text-white flex items-center justify-between px-4 py-3">
+      <div className="no-print md:hidden fixed top-0 inset-x-0 z-40 bg-[#1A1A1A] text-white flex items-center justify-between px-4 py-3">
         <p className="text-lg font-display font-bold">
           Pedidos<span className="text-[#888888]">SHEIN</span>
         </p>
@@ -113,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile sidebar */}
       {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-[#1A1A1A] pt-16">
+        <div className="no-print md:hidden fixed inset-0 z-30 bg-[#1A1A1A] pt-16">
           <nav className="p-4 space-y-1">
             {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
               <Link
@@ -121,7 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  pathname.startsWith(href)
+                  (href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
                     ? 'bg-white/10 text-white'
                     : 'text-gray-400 hover:bg-white/5 hover:text-white'
                 }`}
@@ -142,8 +144,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main content */}
-      <div className="flex-1 md:ml-60 pt-0 md:pt-0">
-        <div className="pt-14 md:pt-0">{children}</div>
+      <div className="flex-1 md:ml-60 pt-0 md:pt-0 print:ml-0">
+        <div className="pt-14 md:pt-0 print:pt-0">{children}</div>
       </div>
 
       {/* Alerta de pedidos nuevos (sonido + notificación) */}

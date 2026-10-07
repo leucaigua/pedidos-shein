@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { NuevaCotizacionButton } from '@/components/AdminCotizacionControls';
+import { useCart } from '@/components/CartContext';
 import {
   estadoLabel,
   estadoColor,
@@ -21,6 +23,8 @@ import {
   Eye,
   Filter,
   FileUp,
+  FilePenLine,
+  FileText,
   Archive,
   ArchiveRestore,
   Trash2,
@@ -47,6 +51,7 @@ const MOTIVOS: { value: string; label: string }[] = [
 type Vista = 'activos' | 'archivados';
 
 export default function AdminPedidosPage() {
+  const { totalItems } = useCart();
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
@@ -152,7 +157,7 @@ export default function AdminPedidosPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-[#1A1A1A]">Pedidos</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -160,7 +165,7 @@ export default function AdminPedidosPage() {
             {vista === 'archivados' ? ' archivado' + (pedidos.length !== 1 ? 's' : '') : ''}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={cargarPedidos}
             className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1A1A1A] transition-colors"
@@ -168,6 +173,22 @@ export default function AdminPedidosPage() {
             <RefreshCw className="w-4 h-4" />
             Actualizar
           </button>
+          <Link href="/admin/pedidos/cotizaciones" className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50">
+            <FileText className="w-4 h-4" />
+            Cotizaciones
+          </Link>
+          {totalItems > 0 && (
+            <Link
+              href="/admin/pedidos/nuevo/carrito"
+              title="Volver a la cotización en curso"
+              className="flex items-center gap-2 border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+            >
+              <FilePenLine className="w-4 h-4" aria-hidden="true" />
+              Cotización en curso
+              <span className="rounded-full bg-amber-200 px-2 py-0.5 text-xs">{totalItems}</span>
+            </Link>
+          )}
+          <NuevaCotizacionButton label="Hacer pedido" />
           <Link
             href="/admin/pedidos/cotizacion"
             className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#3D3D3D] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"

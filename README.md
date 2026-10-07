@@ -304,3 +304,21 @@ transparentes y una experiencia sencilla de principio a fin.
 - 📧 Contacto: leurisecaigua@gmail.com
 
 > *¿Sugerencias o dudas? Toda contribución y feedback es bienvenido.*
+
+## Cotizaciones del admin
+
+En `/admin/pedidos/cotizaciones` se guardan cotizaciones independientes por cliente,
+con códigos `CS-YYYYMMDD-CODE` generados en el servidor (fecha de Venezuela).
+El listado incluye código, fecha, cliente, total, estado y acciones de ver/archivar.
+Estados: pendiente de aprobación, aprobada y no procesada. Las archivadas se pueden restaurar.
+
+En `/admin/pedidos/nuevo`, ingresa el nombre del cliente y agrega las capturas.
+La cotización se guarda automáticamente al tener nombre y artículos; el botón
+**Guardar cotización** confirma el guardado y abre el listado. **Nueva cotización**
+guarda primero la actual y abre un borrador vacío para otro cliente. Desde **Ver**
+se puede descargar su PDF o continuar la edición. Pesos, cantidades y modalidad
+60%/100% se conservan por cotización. Los estados se cambian manualmente en el listado.
+
+**Instalación:** ejecutar `supabase-migration-cotizaciones.sql` en el SQL Editor de
+Supabase. La tabla tiene RLS y no concede acceso público; las rutas verifican el
+rol admin y usan la clave service role. Estas funciones pertenecen solo al admin.

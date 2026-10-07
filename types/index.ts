@@ -188,3 +188,22 @@ export interface ProductoScraped {
   url: string;
   ok: boolean;
 }
+
+export type EstadoCotizacion = 'aprobada' | 'pendiente_aprobacion' | 'no_procesada';
+export interface Cotizacion {
+  id: string;
+  codigo: string;
+  created_at: string;
+  updated_at: string;
+  cliente_nombre: string;
+  estado: EstadoCotizacion;
+  items: ItemCarrito[];
+  pago_total: boolean;
+  subtotal: number;
+  costo_envio: number;
+  costo_proteccion: number;
+  comision: number;
+  total: number;
+  archivado: boolean;
+  archivado_en: string | null;
+}
