@@ -25,7 +25,7 @@ export default function LoginPage() {
         setError('Credenciales incorrectas. Verifica tu correo y contraseña.');
         return;
       }
-      router.push('/admin/pedidos');
+      router.push('/admin');
     } catch {
       setError('Error de conexión. Intenta de nuevo.');
     } finally {

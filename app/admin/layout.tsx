@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import AlertaNuevosPedidos from './AlertaNuevosPedidos';
 import {
+  LayoutDashboard,
   Package,
   FileText,
   BookOpen,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/pedidos', label: 'Pedidos', icon: Package },
   { href: '/admin/pedidos/cotizaciones', label: 'Cotizaciones', icon: FileText },
   { href: '/admin/checkouts', label: 'Carritos abandonados', icon: ShoppingCart },
@@ -82,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={href}
               href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                (href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
+                (href === '/admin' ? pathname === href : href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
                   ? 'bg-white/10 text-white'
                   : 'text-gray-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -123,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  (href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
+                  (href === '/admin' ? pathname === href : href === '/admin/pedidos' ? pathname.startsWith(href) && !pathname.startsWith('/admin/pedidos/cotizaciones') : pathname.startsWith(href))
                     ? 'bg-white/10 text-white'
                     : 'text-gray-400 hover:bg-white/5 hover:text-white'
                 }`}

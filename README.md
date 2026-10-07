@@ -322,3 +322,21 @@ se puede descargar su PDF o continuar la edición. Pesos, cantidades y modalidad
 **Instalación:** ejecutar `supabase-migration-cotizaciones.sql` en el SQL Editor de
 Supabase. La tabla tiene RLS y no concede acceso público; las rutas verifican el
 rol admin y usan la clave service role. Estas funciones pertenecen solo al admin.
+
+## Dashboard del admin
+
+`/admin` muestra tarjetas y gráficos para períodos de 7, 30 o 90 días, comparados
+con el período anterior de igual duración. Las fechas se agrupan en hora de Venezuela.
+Incluye ventas confirmadas, pedidos por día, ticket promedio, cobrado estimado,
+pendientes de pago, cotizaciones, recuperación de carritos, distribución de estados
+y pagos, destinos con más ventas, suscriptores nuevos y últimos pedidos.
+
+Las ventas usan el total de pedidos con pago/compra confirmada o un estado de pago
+registrado; los archivados por falta de pago se excluyen de ventas. El cobrado se
+estima con `estado_pago`: 60% para `abono_60`, 100% para `pagado_total`, cero si no
+hay pago registrado. Las cifras son de pedidos creados en el período y no constituyen
+un libro de movimientos de caja. Los archivados completados sí cuentan como ventas.
+La API solo admite admins, pagina las consultas y no descarga imágenes de artículos.
+
+
+Validación de cálculos: `npm run test:dashboard`.
