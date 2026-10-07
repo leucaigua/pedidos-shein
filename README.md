@@ -94,7 +94,7 @@ thumbnail can't be fetched it falls back to a plain card that still links to the
 Edge-to-edge grid (6 cols desktop / 4 tablet / 3 mobile) of the latest **@shein.maturin**
 posts, with video/carousel badges and a hover overlay. It fetches a clean JSON feed from
 a **Cloudflare Worker** (`instagram-feed-worker.js`) that talks to the official Instagram
-API, caches the response 3 h and auto-refreshes the long-lived token via cron — so the
+API, refreshes media URLs hourly and refreshes the long-lived token via a daily cron — so the
 access token is never exposed to the browser.
 
 - **Config:** set `FEED_URL` at the top of the file to the Worker's `/feed` URL.
@@ -104,8 +104,8 @@ access token is never exposed to the browser.
   `instagram-feed-worker.js` (Instagram professional account + Meta app token + KV binding
   named `IG` + cron trigger).
 
-> Note: because the Worker caches the feed for 3 hours, a brand-new Instagram post can take
-> up to ~3 h to appear on the site.
+> Note: the Worker refreshes the feed hourly; thumbnails are served through `/media/:id`
+> so expired Instagram CDN links are not exposed to the browser.
 
 ## Abandoned checkouts
 
@@ -250,8 +250,8 @@ puede cargar, muestra una tarjeta simple que igual enlaza al video.
 Cuadrícula edge-to-edge (6 columnas en desktop / 4 en tablet / 3 en móvil) con las últimas
 publicaciones de **@shein.maturin**, con insignias de video/carrusel y overlay al pasar el
 mouse. Obtiene un JSON limpio desde un **Worker de Cloudflare** (`instagram-feed-worker.js`)
-que llama a la API oficial de Instagram, cachea la respuesta 3 h y auto-refresca el token
-de larga duración por cron — así el token de acceso nunca se expone al navegador.
+que llama a la API oficial de Instagram, renueva las URLs multimedia cada hora y refresca el token
+de larga duración mediante un cron diario — así el token de acceso nunca se expone al navegador.
 
 - **Configuración:** define `FEED_URL` al inicio del archivo con la URL `/feed` del Worker.
 - **Fallback:** si `FEED_URL` está vacío o el Worker falla, usa el arreglo `MANUAL_POSTS`
@@ -260,8 +260,8 @@ de larga duración por cron — así el token de acceso nunca se expone al naveg
   `instagram-feed-worker.js` (cuenta profesional de Instagram + token de la app de Meta +
   binding KV llamado `IG` + trigger de cron).
 
-> Nota: como el Worker cachea el feed durante 3 horas, una publicación nueva de Instagram
-> puede tardar hasta ~3 h en aparecer en el sitio.
+> Nota: el Worker renueva el feed cada hora y sirve las miniaturas desde `/media/:id`,
+> evitando que el navegador use enlaces caducados del CDN de Instagram.
 
 
 ## Carritos abandonados
@@ -353,3 +353,23 @@ que las visitas están pendientes; los pedidos siguen funcionando. Los datos GA4
 cachean 5 minutos y siguen la zona horaria configurada en la propiedad GA4.
 
 Validación de cálculos: `npm run test:dashboard`.
+
+## Mantenimiento del feed de Instagram
+
+El Worker `instagramfeed` usa el binding KV `IG` y la clave `token` para la conexión
+existente de `@shein.maturin`. El archivo `instagram-feed-worker.js` contiene la
+implementación del servidor; no incluye credenciales. El endpoint administrativo
+`POST /set-token` requiere el secreto de runtime `ADMIN_KEY` y valida que el nuevo
+token corresponda a `shein.maturin` antes de guardarlo.
+
+Configuración: cron `0 3 * * *` (diario, UTC). El Worker comprueba la antigüedad de la
+credencial, la renueva cuando corresponde y actualiza el feed. `/feed` publica enlaces
+estables `/media/:id`; el servidor recupera la URL vigente y reintenta una descarga
+fallida tras renovar el feed. Nunca se deben servir como válidas imágenes cuya firma
+ya venció. Si Meta invalida la autorización, responde `instagram_reconnect_required`
+y hay que renovar la sesión de la cuenta existente desde Meta for Developers.
+
+La sección del inicio conserva el enlace al perfil cuando el feed está temporalmente
+no disponible y muestra un enlace al post si una miniatura falla.
+
+Pruebas: `node --test tests/instagram-feed-worker.test.mjs`.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 /* ------------------------------------------------------------
    MODO A (recomendado): feed automático desde tu Worker.
@@ -11,7 +12,7 @@ const FEED_URL = 'https://instagramfeed.leurisecaigua.workers.dev/feed';
 const IG_PROFILE = 'https://www.instagram.com/shein.maturin';
 const MAX_POSTS = 12; // 6 columnas × 2 filas en desktop
 
-type Post = { img: string; link: string; type?: string };
+type Post = { img: string; link: string; type?: string; caption?: string };
 
 /* ------------------------------------------------------------
    MODO B (fallback / lanzamiento inmediato): lista manual.
@@ -27,6 +28,7 @@ const MANUAL_POSTS: Post[] = [
 export default function InstagramFeed() {
   const sectionRef = useRef<HTMLElement>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +39,7 @@ export default function InstagramFeed() {
         return;
       }
       try {
-        const r = await fetch(FEED_URL);
+        const r = await fetch(FEED_URL, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
         if (!r.ok) throw new Error('feed');
         const data = await r.json();
         if (cancelled) return;
@@ -54,11 +56,6 @@ export default function InstagramFeed() {
     };
   }, []);
 
-  // Sin publicaciones que mostrar todavía: no renderizamos la sección.
-  if (posts.length === 0) {
-    return <section ref={sectionRef} aria-hidden style={{ display: 'none' }} />;
-  }
-
   return (
     <section className="psig-section" id="instagram" ref={sectionRef}>
       <div className="psig-head">
@@ -67,6 +64,10 @@ export default function InstagramFeed() {
           @shein.maturin
         </a>
       </div>
+
+      {posts.length === 0 && (
+        <p className="psig-empty">Descubre nuestros pedidos y novedades en <a href={IG_PROFILE} target="_blank" rel="noopener noreferrer">@shein.maturin</a>.</p>
+      )}
 
       <div className="psig-grid" aria-label="Publicaciones recientes de Instagram">
         {posts.slice(0, MAX_POSTS).map((p, i) => (
@@ -78,8 +79,10 @@ export default function InstagramFeed() {
             rel="noopener noreferrer"
             aria-label="Ver publicación en Instagram"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img alt="" loading="lazy" src={p.img} />
+            {!failedImages.includes(p.img) ? (
+              <Image alt={p.caption || "Publicación de @shein.maturin"} width={400} height={400} unoptimized loading="lazy" src={p.img} referrerPolicy="no-referrer"
+                onError={() => setFailedImages((failed) => failed.includes(p.img) ? failed : [...failed, p.img])} />
+            ) : <span className="psig-unavailable">Ver publicación en Instagram ↗</span>}
 
             {p.type === 'VIDEO' && (
               <svg className="psig-badge" viewBox="0 0 24 24" fill="currentColor">
@@ -133,6 +136,23 @@ export default function InstagramFeed() {
           opacity: 1;
         }
 
+        .psig-empty {
+          text-align: center;
+          padding: 0 24px 32px;
+          color: #737373;
+          font-size: 14px;
+        }
+        .psig-empty a { text-decoration: underline; }
+        .psig-unavailable {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          padding: 16px;
+          text-align: center;
+          color: #737373;
+          font-size: 13px;
+        }
         .psig-grid {
           display: grid;
           grid-template-columns: repeat(var(--psig-cols), 1fr);
