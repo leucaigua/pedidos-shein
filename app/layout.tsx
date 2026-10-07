@@ -44,44 +44,42 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full antialiased">
-      <head>
-        {/* Consent Mode v2 — por defecto denegado hasta que el usuario acepte.
-            Debe ejecutarse ANTES de GTM/gtag. */}
-        <Script id="consent-default" strategy="beforeInteractive">
+      <body className="min-h-full flex flex-col bg-[#FAFAFA] text-[#212121]">
+        {/* Inicializa el consentimiento antes de arrancar GTM y Analytics.
+            afterInteractive evita renderizar un script nativo durante la hidratación. */}
+        <Script id="analytics-init" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('consent', 'default', {
+window.gtag = function(){window.dataLayer.push(arguments);};
+window.gtag('consent', 'default', {
   ad_storage: 'denied',
   ad_user_data: 'denied',
   ad_personalization: 'denied',
   analytics_storage: 'denied'
-});`}
-        </Script>
-        {/* End Consent Mode default */}
-        {/* Google Tag Manager */}
-        <Script id="gtm" strategy="afterInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+});
+try {
+  var savedConsent = localStorage.getItem('cookie-consent');
+  if (savedConsent === 'granted' || savedConsent === 'denied') {
+    window.gtag('consent', 'update', {
+      ad_storage: savedConsent,
+      ad_user_data: savedConsent,
+      ad_personalization: savedConsent,
+      analytics_storage: savedConsent
+    });
+  }
+} catch (_) {}
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-TZ98S373');`}
+})(window,document,'script','dataLayer','GTM-TZ98S373');
+window.gtag('js', new Date());
+window.gtag('config', 'G-6MQGZ8M9VV');`}
         </Script>
-        {/* End Google Tag Manager */}
-        {/* Google tag (gtag.js) */}
         <Script
           id="gtag-src"
           src="https://www.googletagmanager.com/gtag/js?id=G-6MQGZ8M9VV"
           strategy="afterInteractive"
         />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-6MQGZ8M9VV');`}
-        </Script>
-        {/* End Google tag (gtag.js) */}
-      </head>
-      <body className="min-h-full flex flex-col bg-[#FAFAFA] text-[#212121]">
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
