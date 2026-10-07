@@ -2,8 +2,9 @@
 
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Loader2, Pencil } from 'lucide-react';
+import { Loader2, Pencil, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAdminCotizacion } from '@/components/AdminCotizacionContext';
 import CarritoPrintable from '@/components/CarritoPrintable';
@@ -48,7 +49,21 @@ export default function CotizacionPage({ params }: { params: Promise<{ id: strin
         }} className="bg-[#1A1A1A] text-white rounded-xl px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"><Pencil className="w-4 h-4" />Editar cotización</button>}</div>
       </div>
       {error && <p role="alert" className="mb-4 text-sm text-red-600">{error}</p>}
-      <div className="rounded-xl border bg-white overflow-x-auto mb-6"><table className="w-full text-sm text-left"><thead className="bg-gray-50"><tr>{['Producto', 'Cantidad', 'Peso por unidad', 'Precio', 'Total'].map((h) => <th className="p-3" key={h}>{h}</th>)}</tr></thead><tbody>{quote.items.map((item) => <tr key={item.id} className="border-t"><td className="p-3">{item.nombre}<p className="text-xs text-gray-500">{[item.talla, item.color].filter(Boolean).join(' · ')}</p></td><td className="p-3">{item.cantidad}</td><td className="p-3">{item.peso_kg} kg</td><td className="p-3">{formatUSD(item.precio_usd)}</td><td className="p-3">{formatUSD(item.precio_usd * item.cantidad)}</td></tr>)}</tbody></table></div>
+      <div className="rounded-xl border bg-white overflow-x-auto mb-6"><table className="w-full text-sm text-left"><thead className="bg-gray-50"><tr>{['Producto', 'Cantidad', 'Peso por unidad', 'Precio', 'Total'].map((h) => <th className="p-3" key={h}>{h}</th>)}</tr></thead><tbody>{quote.items.map((item) => <tr key={item.id} className="border-t"><td className="p-3">
+                <div className="flex items-center gap-3 min-w-56">
+                  <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-50">
+                    {item.imagen ? (
+                      <Image src={item.imagen} alt={item.nombre} fill sizes="80px" className="object-contain" unoptimized />
+                    ) : (
+                      <div className="flex items-center justify-center h-full"><Package className="w-6 h-6 text-gray-300" aria-label="Sin imagen" /></div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium">{item.nombre}</p>
+                    <p className="text-xs text-gray-500">{[item.talla, item.color].filter(Boolean).join(' · ')}</p>
+                  </div>
+                </div>
+              </td><td className="p-3">{item.cantidad}</td><td className="p-3">{item.peso_kg} kg</td><td className="p-3">{formatUSD(item.precio_usd)}</td><td className="p-3">{formatUSD(item.precio_usd * item.cantidad)}</td></tr>)}</tbody></table></div>
       <div className="bg-white border rounded-xl p-5 max-w-sm ml-auto space-y-3 text-sm">
         <p className="flex justify-between"><span>Subtotal</span><span>{formatUSD(d.producto)}</span></p>
         <div className="flex justify-between"><div>Flete ZOOM<p className="text-xs text-gray-500">Peso total estimado: {peso.toFixed(2)} kg</p></div><span>{formatUSD(d.envio)}</span></div>
