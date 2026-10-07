@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
 import { useAuth } from '@/components/AuthContext';
-import { calcularDesgloseCarrito, formatUSD } from '@/lib/calculations';
+import { calcularDesgloseCarrito, calcularAbono, calcularRestante, formatUSD } from '@/lib/calculations';
 import type { ConfigApp } from '@/types';
 import { whatsappUrl } from '@/lib/utils';
 import {
@@ -54,7 +54,7 @@ function getCheckoutSessionId(): string {
 export default function CheckoutForm({ admin = false }: { admin?: boolean }) {
   const cotizacion = useOptionalAdminCotizacion();
   const router = useRouter();
-  const { items, clearCart } = useCart();
+  const { items, clearCart, pagoTotal } = useCart();
   const { user, perfil } = useAuth();
   const [config, setConfig] = useState<ConfigApp>(CONFIG_DEFAULT);
   const [enviando, setEnviando] = useState(false);
@@ -140,6 +140,7 @@ export default function CheckoutForm({ admin = false }: { admin?: boolean }) {
   // Descuento por cupón (10% sobre el total)
   const descuento = cuponAplicado ? desglose.total * (cuponAplicado.pct / 100) : 0;
   const totalFinal = desglose.total - descuento;
+  const montoHoy = admin && !pagoTotal ? calcularAbono(totalFinal) : totalFinal;
 
   const metodosActivos = config.metodos_pago.filter((m) => m.activo);
   const metodoPagoObj = metodosActivos.find((m) => m.id === metodoPago);
@@ -280,7 +281,7 @@ export default function CheckoutForm({ admin = false }: { admin?: boolean }) {
                   </p>
                 )}
                 <p className="text-xs text-gray-500 mt-2 font-bold">
-                  Total a pagar: {formatUSD(totalFinal)}
+                  {admin && !pagoTotal ? "Abono a pagar (60%)" : "Total a pagar"}: {formatUSD(montoHoy)}
                 </p>
               </div>
             )}
@@ -527,6 +528,12 @@ export default function CheckoutForm({ admin = false }: { admin?: boolean }) {
             </div>
           )}
 
+          {admin && (
+            <div className="rounded-xl bg-gray-50 p-4 text-sm space-y-2">
+              <p className="flex justify-between font-semibold"><span>{pagoTotal ? 'Pago total (100%)' : 'Abono hoy (60%)'}</span><span>{formatUSD(montoHoy)}</span></p>
+              <p className="flex justify-between text-gray-500"><span>Saldo al retirar</span><span>{formatUSD(pagoTotal ? 0 : calcularRestante(totalFinal))}</span></p>
+            </div>
+          )}
           <button
             onClick={confirmarPedido}
             disabled={enviando}
@@ -540,7 +547,7 @@ export default function CheckoutForm({ admin = false }: { admin?: boolean }) {
             ) : (
               <>
                 <CheckCircle className="w-5 h-5" />
-                Confirmar pedido · {formatUSD(totalFinal)}
+                Confirmar pedido · {formatUSD(montoHoy)}
               </>
             )}
           </button>

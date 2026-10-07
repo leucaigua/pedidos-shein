@@ -13,10 +13,10 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles, Clock
 
 export default function CarritoView({ admin = false }: { admin?: boolean }) {
   const cotizacion = useOptionalAdminCotizacion();
-  const { items, removeItem, updateQty, updateWeight, totalItems } = useCart();
+  const { items, removeItem, updateQty, updateWeight, totalItems, pagoTotal, setPagoTotal } = useCart();
   const pesoTotal = items.reduce((total, item) => total + item.peso_kg * item.cantidad, 0);
   const desglose = calcularDesgloseCarrito(items, admin ? cotizacion?.config?.comision_pct : undefined, admin ? cotizacion?.config?.proteccion_activa : undefined);
-  const pagarCompleto = false;
+  const pagarCompleto = admin && pagoTotal;
   const abono = pagarCompleto ? desglose.total : calcularAbono(desglose.total);
   const restante = pagarCompleto ? 0 : calcularRestante(desglose.total);
 
@@ -239,6 +239,26 @@ export default function CarritoView({ admin = false }: { admin?: boolean }) {
                 </div>
               </div>
 
+              {admin && (
+                <div className="flex items-center justify-between gap-3 mb-4 rounded-xl border border-gray-200 p-3">
+                  <div>
+                    <p id="pago-total-label" className="text-sm font-semibold">Pagar total (100%)</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {pagarCompleto ? 'Sin saldo pendiente al retirar' : 'Abono del 60% y 40% al retirar'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={pagarCompleto}
+                    aria-labelledby="pago-total-label"
+                    onClick={() => setPagoTotal(!pagoTotal)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${pagarCompleto ? 'bg-[#1A1A1A]' : 'bg-gray-300'}`}
+                  >
+                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${pagarCompleto ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              )}
               {admin && <GuardarCotizacion />}
 
               {/* Desglose de pago */}
