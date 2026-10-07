@@ -13,7 +13,8 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles, Clock
 
 export default function CarritoView({ admin = false }: { admin?: boolean }) {
   const cotizacion = useOptionalAdminCotizacion();
-  const { items, removeItem, updateQty, totalItems } = useCart();
+  const { items, removeItem, updateQty, updateWeight, totalItems } = useCart();
+  const pesoTotal = items.reduce((total, item) => total + item.peso_kg * item.cantidad, 0);
   const desglose = calcularDesgloseCarrito(items, admin ? cotizacion?.config?.comision_pct : undefined, admin ? cotizacion?.config?.proteccion_activa : undefined);
   const pagarCompleto = false;
   const abono = pagarCompleto ? desglose.total : calcularAbono(desglose.total);
@@ -120,7 +121,31 @@ export default function CarritoView({ admin = false }: { admin?: boolean }) {
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-400 mb-2">
                     {item.talla && <span>Talla: <span className="text-gray-600">{item.talla}</span></span>}
                     {item.color && <span>Color: <span className="text-gray-600">{item.color}</span></span>}
-                    <span>Peso: <span className="text-gray-600">{item.peso_kg} kg/u</span></span>
+                    {admin ? (
+                      <label className="flex items-center gap-1.5">
+                        Peso:
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          defaultValue={item.peso_kg}
+                          aria-label={`Peso en kg por unidad de ${item.nombre}`}
+                          className="w-20 rounded-md border border-gray-200 px-2 py-1 text-gray-600 focus:border-[#1A1A1A] focus:outline-none"
+                          onChange={(event) => {
+                            const peso = event.currentTarget.valueAsNumber;
+                            if (Number.isFinite(peso) && peso > 0) {
+                              updateWeight(item.id, peso);
+                            }
+                          }}
+                          onBlur={(event) => {
+                            event.currentTarget.value = String(item.peso_kg);
+                          }}
+                        />
+                        <span>kg/u</span>
+                      </label>
+                    ) : (
+                      <span>Peso: <span className="text-gray-600">{item.peso_kg} kg/u</span></span>
+                    )}
                   </div>
                   {item.url_shein && (
                     <a
@@ -188,7 +213,14 @@ export default function CarritoView({ admin = false }: { admin?: boolean }) {
                   <span>{formatUSD(desglose.producto)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Flete ZOOM</span>
+                  <div>
+                    <span>Flete ZOOM</span>
+                    {admin && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Peso total estimado: {pesoTotal.toFixed(2)} kg
+                      </p>
+                    )}
+                  </div>
                   <span>{formatUSD(desglose.envio)}</span>
                 </div>
                 {desglose.proteccion > 0 && (
