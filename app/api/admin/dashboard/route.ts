@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { esAdmin, tokenDeRequest } from '@/lib/auth';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { aggregateDashboard, dashboardRange, type DashboardOrder, type DashboardQuote, type DashboardCheckout } from '@/lib/dashboard';
-import type { DashboardRange, DashboardTraffic } from '@/lib/dashboard';
-
-async function getDashboardTraffic(_range: DashboardRange): Promise<DashboardTraffic> {
-  return { status: 'not_configured', sessions: null, users: null, pageViews: null, daily: [] };
-}
+import { getDashboardTraffic } from '@/lib/googleAnalytics';
 
 export async function GET(req: NextRequest) {
   if (!(await esAdmin(tokenDeRequest(req)))) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });

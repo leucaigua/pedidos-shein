@@ -338,5 +338,18 @@ hay pago registrado. Las cifras son de pedidos creados en el período y no const
 un libro de movimientos de caja. Los archivados completados sí cuentan como ventas.
 La API solo admite admins, pagina las consultas y no descarga imágenes de artículos.
 
+Visitas, visitantes y páginas vistas se leen de la Google Analytics Data API con una
+cuenta de servicio. Para habilitarlas, configura en el servidor:
+
+- `GOOGLE_ANALYTICS_PROPERTY_ID`: ID numérico de la propiedad GA4 (no el ID `G-...`).
+- `GOOGLE_ANALYTICS_CLIENT_EMAIL`: email de la cuenta de servicio con rol Viewer en GA4.
+- `GOOGLE_ANALYTICS_PRIVATE_KEY`: clave privada de esa cuenta (admite `\n` escapados).
+
+Activa la Google Analytics Data API en el proyecto de Google Cloud y concede acceso
+Viewer a la cuenta de servicio en la propiedad de Analytics. Referencia oficial:
+https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart
+Las credenciales nunca se envían al navegador. Sin configuración, el dashboard indica
+que las visitas están pendientes; los pedidos siguen funcionando. Los datos GA4 se
+cachean 5 minutos y siguen la zona horaria configurada en la propiedad GA4.
 
 Validación de cálculos: `npm run test:dashboard`.
