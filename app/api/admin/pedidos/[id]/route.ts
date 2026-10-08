@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { esAdmin, tokenDeRequest } from '@/lib/auth';
+import type { ItemCarrito } from '@/types';
 
 export async function GET(
   req: NextRequest,
@@ -27,7 +28,24 @@ export async function PATCH(
   if (!(await esAdmin(tokenDeRequest(req)))) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
   const { id } = await params;
-  const body = await req.json();
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 }); }
+  if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
+  if (body.item_index !== undefined) {
+    if (!Number.isInteger(body.item_index) || body.item_index < 0 || typeof body.verificado_shein !== 'boolean') return NextResponse.json({ error: 'Verificación inválida' }, { status: 400 });
+    const db = getSupabaseAdmin();
+    const { data: pedido, error: readError } = await db.from('pedidos').select('items').eq('id', id).maybeSingle();
+    if (readError) return NextResponse.json({ error: 'No se pudo cargar el pedido' }, { status: 500 });
+    if (!pedido) return NextResponse.json({ error: 'Pedido no encontrado' }, { status: 404 });
+    const items = pedido.items as ItemCarrito[];
+    if (!items[body.item_index] || items[body.item_index].id !== body.item_id) return NextResponse.json({ error: 'El producto cambió. Actualiza la página.' }, { status: 409 });
+    const { data, error } = await db.from('pedidos').update({
+      items: items.map((item, index) => index === body.item_index ? { ...item, verificado_shein: body.verificado_shein } : item),
+    }).eq('id', id).eq('items', JSON.stringify(items)).select().maybeSingle();
+    if (error) return NextResponse.json({ error: 'No se pudo guardar la verificación' }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Los productos cambiaron. Actualiza la página e intenta de nuevo.' }, { status: 409 });
+    return NextResponse.json({ ok: true, pedido: data });
+  }
   const allowed = [
     'estado', 'estado_pago', 'nota_admin', 'tracking_numero', 'tracking_url',
     'items', 'subtotal', 'costo_envio', 'costo_proteccion', 'comision', 'total',

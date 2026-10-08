@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import PedidoProductoCheck from '@/components/PedidoProductoCheck';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { estadoLabel, estadoColor, estadoEmoji, estadoPagoLabel, estadoPagoEmoji, motivoArchivoLabel, motivoArchivoEmoji, whatsappUrl } from '@/lib/utils';
@@ -323,6 +324,7 @@ export default function DetallePedidoPage() {
                 <div className="space-y-4">
                   {pedido.items?.map((item, i) => (
                     <div key={i} className="flex gap-4 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
+                      <PedidoProductoCheck pedidoId={pedido.id} item={item} index={i} onSaved={setPedido} />
                       {item.imagen && (
                         <button
                           type="button"

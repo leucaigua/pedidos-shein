@@ -26,6 +26,7 @@ export interface ItemCarrito {
   color: string;
   cantidad: number;
   peso_kg: number;
+  verificado_shein?: boolean;
   // --- Catálogo (dropshipping): opcionales para no romper items existentes ---
   catalogo_id?: string;        // id del producto en la tabla `catalogo`
   external_id?: string;        // id del producto en la fuente (AliExpress)

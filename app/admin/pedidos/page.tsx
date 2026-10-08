@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { NuevaCotizacionButton } from '@/components/AdminCotizacionControls';
 import { useCart } from '@/components/CartContext';
+import PedidoProductoCheck from '@/components/PedidoProductoCheck';
 import {
   estadoLabel,
   estadoColor,
@@ -154,6 +155,13 @@ export default function AdminPedidosPage() {
     setBusqueda('');
   }
 
+  function productos(pedido: Pedido) {
+    return <div className="space-y-2">{pedido.items?.map((item, index) => <div key={`${item.id}-${index}`} className="flex items-center gap-2">
+      <PedidoProductoCheck pedidoId={pedido.id} item={item} index={index} onSaved={(saved) => setPedidos((actuales) => actuales.map((p) => p.id === saved.id ? saved : p))} />
+      <span className="text-xs text-gray-600"><span className="block font-medium">{item.nombre}</span><span>{[item.talla, item.color, `Cant: ${item.cantidad}`].filter(Boolean).join(' · ')}</span></span>
+    </div>)}</div>;
+  }
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -299,6 +307,9 @@ export default function AdminPedidosPage() {
                     Cliente
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    Productos
+                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
                     Total
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
@@ -321,6 +332,9 @@ export default function AdminPedidosPage() {
                     <td className="px-4 py-3">
                       <p className="font-medium text-[#212121]">{pedido.cliente_nombre}</p>
                       <p className="text-gray-400 text-xs">{pedido.cliente_telefono}</p>
+                    </td>
+                    <td className="px-4 py-3 font-bold text-[#1A1A1A]">
+                      {productos(pedido)}
                     </td>
                     <td className="px-4 py-3 font-bold text-[#1A1A1A]">
                       {formatUSD(pedido.total)}
@@ -430,6 +444,7 @@ export default function AdminPedidosPage() {
                     <p className="font-bold text-[#1A1A1A] text-sm">{formatUSD(pedido.total)}</p>
                   </div>
                 </Link>
+                <div className="mt-3">{productos(pedido)}</div>
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-50">
                   {vista === 'activos' ? (
                     <button
