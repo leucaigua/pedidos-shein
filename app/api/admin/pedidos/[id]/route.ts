@@ -41,8 +41,11 @@ export async function PATCH(
     if (!items[body.item_index] || items[body.item_index].id !== body.item_id) return NextResponse.json({ error: 'El producto cambió. Actualiza la página.' }, { status: 409 });
     const { data, error } = await db.from('pedidos').update({
       items: items.map((item, index) => index === body.item_index ? { ...item, verificado_shein: body.verificado_shein } : item),
-    }).eq('id', id).eq('items', JSON.stringify(items)).select().maybeSingle();
-    if (error) return NextResponse.json({ error: 'No se pudo guardar la verificación' }, { status: 500 });
+    }).eq('id', id).select().maybeSingle();
+    if (error) {
+      console.error('[admin/pedidos/:id verificación]', error);
+      return NextResponse.json({ error: 'No se pudo guardar la verificación' }, { status: 500 });
+    }
     if (!data) return NextResponse.json({ error: 'Los productos cambiaron. Actualiza la página e intenta de nuevo.' }, { status: 409 });
     return NextResponse.json({ ok: true, pedido: data });
   }

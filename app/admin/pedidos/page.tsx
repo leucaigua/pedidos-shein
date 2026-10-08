@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { NuevaCotizacionButton } from '@/components/AdminCotizacionControls';
 import { useCart } from '@/components/CartContext';
-import PedidoProductoCheck from '@/components/PedidoProductoCheck';
 import {
   estadoLabel,
   estadoColor,
@@ -155,11 +154,9 @@ export default function AdminPedidosPage() {
     setBusqueda('');
   }
 
-  function productos(pedido: Pedido) {
-    return <div className="space-y-2">{pedido.items?.map((item, index) => <div key={`${item.id}-${index}`} className="flex items-center gap-2">
-      <PedidoProductoCheck pedidoId={pedido.id} item={item} index={index} onSaved={(saved) => setPedidos((actuales) => actuales.map((p) => p.id === saved.id ? saved : p))} />
-      <span className="text-xs text-gray-600"><span className="block font-medium">{item.nombre}</span><span>{[item.talla, item.color, `Cant: ${item.cantidad}`].filter(Boolean).join(' · ')}</span></span>
-    </div>)}</div>;
+  function resumenItems(pedido: Pedido) {
+    const cantidad = pedido.items?.length ?? 0;
+    return `${cantidad} ${cantidad === 1 ? 'ítem' : 'ítems'}`;
   }
 
   return (
@@ -307,7 +304,7 @@ export default function AdminPedidosPage() {
                     Cliente
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
-                    Productos
+                    Ítems
                   </th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wide">
                     Total
@@ -334,7 +331,7 @@ export default function AdminPedidosPage() {
                       <p className="text-gray-400 text-xs">{pedido.cliente_telefono}</p>
                     </td>
                     <td className="px-4 py-3 font-bold text-[#1A1A1A]">
-                      {productos(pedido)}
+                      {resumenItems(pedido)}
                     </td>
                     <td className="px-4 py-3 font-bold text-[#1A1A1A]">
                       {formatUSD(pedido.total)}
@@ -444,7 +441,7 @@ export default function AdminPedidosPage() {
                     <p className="font-bold text-[#1A1A1A] text-sm">{formatUSD(pedido.total)}</p>
                   </div>
                 </Link>
-                <div className="mt-3">{productos(pedido)}</div>
+                <p className="mt-3 text-xs text-gray-500">{resumenItems(pedido)}</p>
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-50">
                   {vista === 'activos' ? (
                     <button
