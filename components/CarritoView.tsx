@@ -14,7 +14,7 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Sparkles, Clock
 
 export default function CarritoView({ admin = false }: { admin?: boolean }) {
   const cotizacion = useOptionalAdminCotizacion();
-  const { items, removeItem, updateQty, updateWeight, totalItems, pagoTotal, setPagoTotal } = useCart();
+  const { items, removeItem, updateQty, updateWeight, updatePrice, totalItems, pagoTotal, setPagoTotal } = useCart();
   const pesoTotal = items.reduce((total, item) => total + item.peso_kg * item.cantidad, 0);
   const desglose = calcularDesgloseCarrito(items, admin ? cotizacion?.config?.comision_pct : undefined, admin ? cotizacion?.config?.proteccion_activa : undefined);
   const pagarCompleto = admin && pagoTotal;
@@ -157,6 +157,28 @@ export default function CarritoView({ admin = false }: { admin?: boolean }) {
                     >
                       Ver producto original →
                     </a>
+                  )}
+                  {admin && (
+                    <label className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+                      Precio por unidad:
+                      <span>$</span>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        defaultValue={item.precio_usd.toFixed(2)}
+                        aria-label={`Precio en USD por unidad de ${item.nombre}`}
+                        className="w-24 rounded-md border border-gray-200 px-2 py-1 text-gray-600 focus:border-[#1A1A1A] focus:outline-none"
+                        onChange={(event) => {
+                          const precio = event.currentTarget.valueAsNumber;
+                          if (Number.isFinite(precio) && precio >= 0.01) updatePrice(item.id, precio);
+                        }}
+                        onBlur={(event) => {
+                          event.currentTarget.value = item.precio_usd.toFixed(2);
+                        }}
+                      />
+                      <span>USD</span>
+                    </label>
                   )}
                 </div>
 
