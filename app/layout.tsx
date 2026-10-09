@@ -7,12 +7,12 @@ import { CatalogoProvider } from "@/components/CatalogoContext";
 import CookieConsent from "@/components/CookieConsent";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "https://www.pedidosshein.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Pedidos SHEIN Venezuela — Compra desde USA con envío aéreo",
-  description: "Trae lo que quieras de SHEIN directo a tus manos en Venezuela. Envío aéreo rápido con ZOOM Casilleros. Paga en Bs, Zelle o Binance.",
+  description: "Trae lo que quieras de SHEIN directo a tus manos en Venezuela. Envío aéreo rápido con ZOOM Casilleros. Paga en Bs, o Binance.",
   keywords: "comprar SHEIN Venezuela, SHEIN envío Venezuela, compras USA Venezuela, ZOOM casilleros Venezuela",
   openGraph: {
     title: "Pedidos SHEIN Venezuela",
